@@ -1,7 +1,7 @@
 -------------------------------------------------------------------------------
 Test set: org.machariel.test.ReferenceArray
 -------------------------------------------------------------------------------
-Tests run: 3, Failures: 1, Errors: 0, Skipped: 0, Time elapsed: 0.067 sec <<< FAILURE!
+Tests run: 3, Failures: 1, Errors: 0, Skipped: 0, Time elapsed: 0.064 sec <<< FAILURE!
 testGenericArray2(org.machariel.test.ReferenceArray)  Time elapsed: 0.027 sec  <<< FAILURE!
 java.lang.AssertionError: 
 	at org.junit.Assert.fail(Assert.java:91)

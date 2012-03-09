@@ -2,7 +2,7 @@
 Test set: org.machariel.test.Reference
 -------------------------------------------------------------------------------
 Tests run: 3, Failures: 2, Errors: 0, Skipped: 0, Time elapsed: 0.033 sec <<< FAILURE!
-testGeneric(org.machariel.test.Reference)  Time elapsed: 0.006 sec  <<< FAILURE!
+testGeneric(org.machariel.test.Reference)  Time elapsed: 0.003 sec  <<< FAILURE!
 java.lang.AssertionError: 
 	at org.junit.Assert.fail(Assert.java:91)
 	at org.junit.Assert.assertTrue(Assert.java:43)
@@ -36,7 +36,7 @@ java.lang.AssertionError:
 	at org.apache.maven.surefire.booter.SurefireBooter.runSuitesInProcess(SurefireBooter.java:345)
 	at org.apache.maven.surefire.booter.SurefireBooter.main(SurefireBooter.java:1009)
 
-testCollection(org.machariel.test.Reference)  Time elapsed: 0.005 sec  <<< FAILURE!
+testCollection(org.machariel.test.Reference)  Time elapsed: 0.003 sec  <<< FAILURE!
 java.lang.AssertionError: 
 	at org.junit.Assert.fail(Assert.java:91)
 	at org.junit.Assert.assertTrue(Assert.java:43)
