@@ -1,86 +1,95 @@
 package org.machariel.core.util;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
-import java.util.Arrays;
-import java.util.Comparator;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import sun.misc.Unsafe;
+
 public final class Reflection {
+  public static final int MAGIC_SIZE = 4 + Unsafe.ADDRESS_SIZE;
+  private static final Unsafe u = U.instance();
+  
 	private Reflection() {}
 	
 	public static int size(Class<?> c) {
-		int size = 0;
-		
-		Field[] dfs = getAllFields(c);
-		for (Field f : dfs) size += _size(f.getType());
-		
+	  if (isPrimitive(c)) return SCALE.get(c);
+	  
+	  int size = 0;
+	  
+    Class<?> parent = c.getSuperclass();
+    if (parent != null) size = size(parent);
+    
+    for (Field f : c.getDeclaredFields())
+      if (!(Modifier.isStatic(f.getModifiers()) || f.isSynthetic()))
+        size += u.arrayIndexScale(arrayClass(f.getType()));
+    
 		return correctSize(size);
+	}
+	
+	@SuppressWarnings("unchecked")
+  public static <A> Class<A[]> arrayClass(Class<A> type) {
+	  return (Class<A[]>) Array.newInstance(type, 0).getClass();
 	}
 	
 	private static int correctSize(int size) {
 		return size % 8 == 0 ? size : 8 * (size / 8 + 1);
 	}
 	
-	private static int _size(Class<?> type) {
-		if (isWrapper(type)) return WRAPPERS.get(type);
-		return size(type);
-	}
-	
-	public static Field[] getAllFields(Class<?> type) {
+	public static List<Field> getAllFields(Class<?> type) {
+	  List<Field> result = new ArrayList<Field>();
 		Field[] fields = type.getDeclaredFields();
-		Arrays.sort(fields, fieldComparator);
+		
+		for (Field f : fields)
+		  if (!(Modifier.isStatic(f.getModifiers()) || f.isSynthetic()))
+		    result.add(f);
 		
 		Class<?> parent = type.getSuperclass();
-		if (parent != null) {
-			Field[] inherited = getAllFields(parent);
-			int offset = fields.length;
-			fields = Arrays.copyOf(fields, offset + inherited.length);
-			System.arraycopy(inherited, 0, fields, offset, inherited.length);
-		}
+		if (parent != null) result.addAll(getAllFields(parent));
 		
-		return fields;
+		return result;
 	}
 	
-	private static final Comparator<Field> fieldComparator = new Comparator<Field>() {
-		@Override
-		public int compare(Field o1, Field o2) {
-			return o1.getName().compareTo(o2.getName());
-		}
-	};
+	public static boolean isPrimitive(Class<?> type) {
+		return SCALE.containsKey(type);
+	}
 	
-	private static boolean isWrapper(Class<?> type) {
-		return WRAPPERS.containsKey(type);
+	public static String name0(Field f, Class<?> domain) {
+	  if (Modifier.isPrivate(f.getModifiers())) return f.getDeclaringClass().getCanonicalName() + "#" + f.getName();
+	  if (overrided0(f, domain)) return f.getDeclaringClass().getCanonicalName() + "#" + f.getName();
+	  
+	  return f.getName();
+	}
+	
+	private static boolean overrided0(Field f, Class<?> middle) {
+	  if (middle == f.getDeclaringClass()) return false;
+	  Field mf = getField(f.getName(), middle);
+	  if (mf != null && (Modifier.isPublic(mf.getModifiers()) || Modifier.isProtected(mf.getModifiers()))) return true;
+	  
+	  return overrided0(f, middle.getSuperclass());
+	}
+	
+	public static Field getField(String fname, Class<?> type) {
+	  try {
+	    return type.getDeclaredField(fname);
+	  } catch (NoSuchFieldException e) {
+	    return null;
+    }
 	}
 	
 	@SuppressWarnings("serial")
-	private static final Map<Class<?>, Integer> WRAPPERS = new HashMap<Class<?>, Integer>() {{
-		put(Boolean.class, 1);
-		put(boolean.class, 1);
-		
-		put(Character.class, 2);
-		put(char.class, 2);
-		
-		put(Byte.class, 1);
-		put(byte.class, 1);
-		
-		put(Short.class, 2);
-		put(short.class, 2);
-		
-		put(Integer.class, 4);
-		put(int.class, 4);
-		
-		put(Long.class, 8);
-		put(long.class, 8);
-		
-		put(Float.class, 4);
-		put(float.class, 4);
-		
-		put(Double.class, 8);
-		put(double.class, 8);
-		
-//		put(Void.class, 0);
+	private static final Map<Class<?>, Integer> SCALE = new HashMap<Class<?>, Integer>() {{
+		put(boolean.class, Unsafe.ARRAY_BOOLEAN_INDEX_SCALE);
+		put(char.class, Unsafe.ARRAY_CHAR_INDEX_SCALE);
+		put(byte.class, Unsafe.ARRAY_BYTE_INDEX_SCALE);
+		put(short.class, Unsafe.ARRAY_SHORT_INDEX_SCALE);
+		put(int.class, Unsafe.ARRAY_INT_INDEX_SCALE);
+		put(long.class, Unsafe.ARRAY_LONG_INDEX_SCALE);
+		put(float.class, Unsafe.ARRAY_FLOAT_INDEX_SCALE);
+		put(double.class, Unsafe.ARRAY_DOUBLE_INDEX_SCALE);
 	}};
-	
-	
 }
