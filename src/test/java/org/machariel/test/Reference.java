@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.Random;
 
 import org.junit.Test;
-import org.machariel.core.manager.ReferenceSerializationManager;
+import org.machariel.core.serialization.ReferenceSerializationManager;
 import org.machariel.test.data.Bean0;
 import org.machariel.test.data.Bean1;
 import org.machariel.test.util.Common;

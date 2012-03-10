@@ -19,50 +19,62 @@ public class Tries {
   private static final Unsafe u = U.instance();
   
   @Test
-  public void method() {
+  public void size() {
+    Reflection.size(1);
     A a = new A();
-
-    long ref = U.o2a(a);
-    // long ref = U.o2a(new ArrayList().getClass());
-    // byte[] hex = new byte[20];
-    // for (int i = 0; i < 20; i++) hex[i] = u.getByte(ref + i);
-
-    // System.out.println(Common.hex(hex));
-    // System.out.println();
-
-    long ka = u.getAddress(ref + 4);
-    // long assc = u.getAddress(ref + 20);
-
-    // hex = new byte[80];
-    // for (int i = 0; i < 80; i++) hex[i] = u.getByte(ka + i);
-    // System.out.println(Common.hex(hex));
-    // System.out.println();
-
-    // int offset = u.getInt(ka + 16);
-    // hex = new byte[80];
-    // for (int i = 0; i < 80; i++) hex[i] = u.getByte(ka + offset + 16 + i);
-    // System.out.println(Common.hex(hex));
-    // System.out.println();
-    // System.out.println(offset);
-
-    // long ca = u.getAddress(ka + 36 + 16 + 12);
-    // Object cc = U.a2o(ca);
-    // System.out.println(cc);
+    long ka2 = u.getAddress(U.o2a(a) + 4);
+    System.out.println(u.getInt(ka2 + 3 * Unsafe.ADDRESS_SIZE));
   }
-
-  @Test
-  public void check() {
+  
+//  @Test
+  public void method() {
+//    klass(getClass(), r, u, new Integer(1), new ArrayList<Integer>(), Arrays.asList(1), Collections.EMPTY_MAP, new RawArray());
+    A a = new A();
+    long ka2 = u.getAddress(U.o2a(a) + 4);
     long time = 0;
-    // while (true) {
-    for (int i = 0; i < 10; i++) {
-      byte[] q = new byte[1024 * 1024 * 128];
-      long ref = U.o2a(new ArrayList());
-      long ka = u.getAddress(ref + 4); // klass pointer
-      // if (System.currentTimeMillis() - time > 2000) {
+    
+    while (true) {
+      if (System.currentTimeMillis() - time > 4000) {
+        byte[] b = new byte[1024 * 1024 * 128];
+        long ka = u.getAddress(U.o2a(a) + 4);
+        System.out.println();
         System.out.println(ka);
-        // time = System.currentTimeMillis();
-      // }
-      System.gc();
+        dump(ka2, 60);
+        
+        time = System.currentTimeMillis();
+        System.gc();
+      }
+    }
+  }
+  
+  public void dump(long ref, int size) {
+    byte[] hex = new byte[size];
+    for (int j = 0; j < size; j++) hex[j] = u.getByte(ref + j);
+    System.out.print(Common.hex(hex));
+  }
+  
+  public void klass(Object... o) {
+    List<Long> a = new ArrayList<Long>();
+    for (Object q : o) {
+      long ref = U.o2a(q);
+      a.add(u.getAddress(ref + 4));
+    }
+    
+    byte[] hex = new byte[4];
+    for (int i = 0; i < 30; i++) {
+      for (Long ka : a) {
+        for (int j = 0; j < 4; j++) {
+          hex[j] = u.getByte(ka + i * 4 + j);
+        }
+        System.out.print(Common.hex(hex) + "\t\t");
+      }
+      
+      System.out.println();
+    }
+    
+    System.out.println();
+    for (Long ka : a) {
+      System.out.print(U.a2o(u.getAddress(ka + 64)) + "\t");
     }
   }
 }

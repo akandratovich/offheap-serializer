@@ -5,7 +5,7 @@ import static org.junit.Assert.*;
 import java.util.Random;
 
 import org.junit.Test;
-import org.machariel.core.manager.ArraySerializationManager;
+import org.machariel.core.serialization.ArraySerializationManager;
 import org.machariel.test.data.Bean0;
 import org.machariel.test.data.Bean1;
 import org.machariel.test.util.Common;

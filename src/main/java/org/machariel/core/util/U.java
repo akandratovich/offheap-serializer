@@ -1,5 +1,7 @@
 package org.machariel.core.util;
 
+import sun.misc.Unsafe;
+
 public final class U {
 	private U() {}
 	
@@ -18,12 +20,12 @@ public final class U {
 	}
 	
 	public static long o2a(Object o) {
-		return u.getLong(new Object[] {o}, 12L);
+		return u.getLong(new Object[] {o}, 3L * Unsafe.ADDRESS_SIZE);
 	}
 	
 	public synchronized static Object a2o(long address) {
 		Object[] ar = new Object[1];
-		u.putLong(ar, 12L, address);
+		u.putLong(ar, 3L * Unsafe.ADDRESS_SIZE, address);
 		return ar[0];
 	}
 }

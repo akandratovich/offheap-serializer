@@ -6,7 +6,7 @@ import java.lang.reflect.Field;
 import java.util.Random;
 
 import org.junit.Test;
-import org.machariel.core.manager.ArraySerializationManager.Raw;
+import org.machariel.core.serialization.ArraySerializationManager.Raw;
 
 import sun.misc.Unsafe;
 

@@ -11,7 +11,7 @@ import java.util.Map;
 import sun.misc.Unsafe;
 
 public final class Reflection {
-  public static final int MAGIC_SIZE = 4 + Unsafe.ADDRESS_SIZE;
+  public static final int MAGIC_SIZE = 2 * Unsafe.ADDRESS_SIZE;
   private static final Unsafe u = U.instance();
   
 	private Reflection() {}
@@ -29,6 +29,15 @@ public final class Reflection {
         size += u.arrayIndexScale(arrayClass(f.getType()));
     
 		return correctSize(size);
+	}
+	
+	public static int size(Object o) {
+	  if (isPrimitive(o.getClass())) return SCALE.get(o.getClass());
+	  return u.getInt(klassPtr(o) + 3 * Unsafe.ADDRESS_SIZE);
+	}
+	
+	public static long klassPtr(Object o) {
+	  return u.getAddress(U.o2a(o) + Unsafe.ADDRESS_SIZE);
 	}
 	
 	@SuppressWarnings("unchecked")
