@@ -11,7 +11,7 @@ public class Primitive {
 
   @Test
   public void test() throws InstantiationException, IllegalArgumentException, IllegalAccessException {
-    ReferenceSerializationManager<Bean0> sm = ReferenceSerializationManager.acquire(Bean0.class);
+    ReferenceSerializationManager<Bean0> sm = ObjectAccessor.acquire(Bean0.class);
     
     Bean0 bean0 = new Bean0();
     bean0.randomize();

@@ -16,7 +16,7 @@ public final class Common {
 			if (i++ % 4 == 3) sb.append("\n");
 		}
 
-		return sb.toString();
+		return sb.toString().trim();
 	}
 	
 	public static String toString(Object o) throws IllegalArgumentException, IllegalAccessException {

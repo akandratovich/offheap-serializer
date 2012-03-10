@@ -11,7 +11,7 @@ public class Extends {
 
   @Test
   public void test() throws InstantiationException, IllegalArgumentException, IllegalAccessException {
-    ReferenceSerializationManager<Bean3> sm = ReferenceSerializationManager.acquire(Bean3.class);
+    ReferenceSerializationManager<Bean3> sm = ObjectAccessor.acquire(Bean3.class);
     
     Bean3 bean0 = new Bean3();
     

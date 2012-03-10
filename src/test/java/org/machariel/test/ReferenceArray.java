@@ -15,7 +15,7 @@ public class ReferenceArray {
   
   @Test
   public void intArray() throws InstantiationException {
-    ArraySerializationManager<Integer> sm = ArraySerializationManager.acquire(Integer[].class);
+    ArraySerializationManager<Integer> sm = ArrayAccessor.acquire(Integer[].class);
     
     Integer[] a = new Integer[r.nextInt(100)];
     for (int i = 0; i < a.length; i++) a[i] = r.nextInt();
@@ -46,7 +46,7 @@ public class ReferenceArray {
     Object[] a = new Integer[r.nextInt(100)];
     for (int i = 0; i < a.length; i++) a[i] = r.nextInt();
     
-    ArraySerializationManager<Object> sm = ArraySerializationManager.acquire(a);
+    ArraySerializationManager<Object> sm = ArrayAccessor.acquire(a);
     
     long ref = sm.serialize(a);
     Object[] b = sm.deserialize(ref);
@@ -59,7 +59,7 @@ public class ReferenceArray {
     Bean0[] a = new Bean0[r.nextInt(100)];
     for (int i = 0; i < a.length; i++) a[i] = new Bean1().randomize();
     
-    ArraySerializationManager<Bean0> sm = ArraySerializationManager.acquire(a);
+    ArraySerializationManager<Bean0> sm = ArrayAccessor.acquire(a);
     
     long ref = sm.serialize(a);
     Bean0[] b = sm.deserialize(ref);

@@ -15,7 +15,7 @@ public class GenericArray {
     Integer[] a = new Integer[r.nextInt(100)];
     for (int i = 0; i < a.length; i++) a[i] = r.nextInt();
     
-    ArraySerializationManager<Integer> sm = ArraySerializationManager.acquire(Integer[].class);
+    ArraySerializationManager<Integer> sm = ArrayAccessor.acquire(Integer[].class);
     
     long ref = sm.serialize(a);
     Integer[] b = sm.deserialize(ref);

@@ -17,7 +17,7 @@ public class Reference {
   @Test
   public void testGeneric() throws InstantiationException, IllegalArgumentException, IllegalAccessException {
     Bean0 bean0 = new Bean1();
-    ReferenceSerializationManager<Bean0> sm = ReferenceSerializationManager.acquire(Bean0.class);
+    ReferenceSerializationManager<Bean0> sm = ObjectAccessor.acquire(Bean0.class);
     
     bean0.randomize();
     long ref = sm.serialize(bean0, 2);
@@ -28,7 +28,7 @@ public class Reference {
   
   @Test
   public void test() throws InstantiationException, IllegalArgumentException, IllegalAccessException {
-    ReferenceSerializationManager<Bean1> sm = ReferenceSerializationManager.acquire(Bean1.class);
+    ReferenceSerializationManager<Bean1> sm = ObjectAccessor.acquire(Bean1.class);
     
     Bean1 bean0 = new Bean1();
     bean0.randomize();
@@ -41,7 +41,7 @@ public class Reference {
   @Test
   public void testCollection() throws InstantiationException, IllegalArgumentException, IllegalAccessException {
     ArrayList<Integer> col0 = new ArrayList<Integer>();
-    ReferenceSerializationManager<ArrayList<Integer>> sm = ReferenceSerializationManager.acquire(col0);
+    ReferenceSerializationManager<ArrayList<Integer>> sm = ObjectAccessor.acquire(col0);
     
     for (int i = 0; i < r.nextInt(10); i++) col0.add(r.nextInt());
     

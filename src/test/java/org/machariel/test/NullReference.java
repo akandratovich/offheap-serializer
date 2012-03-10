@@ -11,7 +11,7 @@ public class NullReference {
 
   @Test
   public void test() throws InstantiationException, IllegalArgumentException, IllegalAccessException {
-    ReferenceSerializationManager<Bean2> sm = ReferenceSerializationManager.acquire(Bean2.class);
+    ReferenceSerializationManager<Bean2> sm = ObjectAccessor.acquire(Bean2.class);
     
     Bean2 bean0 = new Bean2();
     bean0.randomize();

@@ -23,9 +23,25 @@ public final class U {
 		return u.getLong(new Object[] {o}, 3L * Unsafe.ADDRESS_SIZE);
 	}
 	
-	public synchronized static Object a2o(long address) {
+	public static Object a2o(long address) {
 		Object[] ar = new Object[1];
 		u.putLong(ar, 3L * Unsafe.ADDRESS_SIZE, address);
 		return ar[0];
 	}
+	
+	public static boolean klass(long ptr) {
+	  return
+	      u.getAddress(Reflection.klassPtr(r) + Unsafe.ADDRESS_SIZE) == u.getAddress(ptr + Unsafe.ADDRESS_SIZE) ||
+	      u.getAddress(Reflection.klassPtr(ra) + Unsafe.ADDRESS_SIZE) == u.getAddress(ptr + Unsafe.ADDRESS_SIZE) ||
+	      u.getAddress(Reflection.klassPtr(pa) + Unsafe.ADDRESS_SIZE) == u.getAddress(ptr + Unsafe.ADDRESS_SIZE);
+	}
+	
+	public static Class<?> clazz(long ptr) {
+	  if (!klass(ptr)) throw new IllegalArgumentException();
+	  return (Class<?>) U.a2o(u.getAddress(ptr + 16 * Unsafe.ADDRESS_SIZE));
+	}
+	
+	private static final int[] pa = new int[0];
+	private static final Integer[] ra = new Integer[0];
+	private static final Integer r = new Integer(0);
 }
