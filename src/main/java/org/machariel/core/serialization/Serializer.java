@@ -26,13 +26,11 @@ public class Serializer {
     
     final long klass = Reflection.klassPtr(object);
     final long _offset = Unsafe.ADDRESS_SIZE + Unsafe.ARRAY_INT_INDEX_SCALE;
-    
-    final long src = U.o2a(object);
     final long ref = u.allocateMemory(size + _offset);
     
     u.putInt(ref, size);
     u.putAddress(ref + Unsafe.ARRAY_INT_INDEX_SCALE, klass);
-    u.copyMemory(src + Reflection.MAGIC_SIZE, ref + _offset, size);
+    u.copyMemory(object, Reflection.MAGIC_SIZE, null, ref + _offset, size - Reflection.MAGIC_SIZE);
     
     for (Field f : Reflection.getAllFields(object.getClass())) {
       if (!Reflection.isPrimitive(f.getType())) {
@@ -40,6 +38,7 @@ public class Serializer {
         if (depth > 0) {
           final long member_ptr = u.getAddress(slot);
           if (member_ptr != 0L) u.putAddress(slot, serialize(U.a2o(member_ptr), depth - 1));
+          else u.setMemory(slot, Unsafe.ADDRESS_SIZE, (byte) 0);
         } else u.setMemory(slot, Unsafe.ADDRESS_SIZE, (byte) 0);
       }
     }
@@ -49,11 +48,8 @@ public class Serializer {
   
   // arrays
   private static long serialize0(Object object, int depth) {
-    final long src = U.o2a(object);
-    
-    final int size = u.getInt(src + Reflection.MAGIC_SIZE);
+    final int size = u.getInt(object, Reflection.MAGIC_SIZE);
     final long klass = Reflection.klassPtr(object);
-    
     final long _offset = Unsafe.ADDRESS_SIZE + Unsafe.ARRAY_INT_INDEX_SCALE;
     
     Class<?> array_class = object.getClass();
@@ -65,14 +61,16 @@ public class Serializer {
     u.putInt(ref, size);
     u.putAddress(ref + Unsafe.ARRAY_INT_INDEX_SCALE, klass);
     
-    if (Reflection.isPrimitive(array_class.getComponentType())) u.copyMemory(src + offset, ref + _offset, size * scale);
-    else if (depth > 0) {
-      for (int i = 0; i < size; i++) {
-        final long slot = ref + _offset + i * scale;
-        final long member_ptr = u.getAddress(slot);
-        if (member_ptr != 0L) u.putAddress(slot, serialize(U.a2o(member_ptr), depth - 1));
-      }
-    } else u.setMemory(ref + _offset, size * scale, (byte) 0);
+    u.copyMemory(object, offset, null, ref + _offset, size * scale);
+    if (!Reflection.isPrimitive(array_class.getComponentType())) {
+      Object[] _object = (Object[]) object;
+      if (depth > 0) {
+        for (int i = 0; i < size; i++) {
+          final Object member = _object[i];
+          if (member != null) u.putAddress(ref + _offset + i * scale, serialize(member, depth - 1));
+        }
+      } else u.setMemory(ref + _offset, size * scale, (byte) 0);
+    }
     
     return ref;
   }
@@ -90,18 +88,31 @@ public class Serializer {
     final int size = u.getInt(ref);
     
     Object object = u.allocateInstance(clazz);
-    long dst = U.o2a(object);
     
-    u.copyMemory(ref + _offset, dst + Reflection.MAGIC_SIZE, size);
+//    u.monitorEnter(object);
+    // TODO VERY BAD
+    long a0 = U.o2a(object);
+    u.copyMemory(ref + _offset, a0 + Reflection.MAGIC_SIZE, size - Reflection.MAGIC_SIZE);
+    
+//    long a1 = U.o2a(object);
+//    u.monitorExit(object);
+//    if (a0 != a1) {
+//      System.out.println(a0 + " " + a1);
+//    }
     
     for (Field f : Reflection.getAllFields(clazz)) {
-      if (!Reflection.isPrimitive(f.getType())) {
-        final long slot = dst + u.objectFieldOffset(f);
+      if (Reflection.isPrimitive(f.getType())) {
+        
+      } else {
+        final long fo = u.objectFieldOffset(f);
+        final long slot = ref + _offset + fo - Reflection.MAGIC_SIZE;
         final long member_ptr = u.getAddress(slot);
-        if (member_ptr != 0L) u.putAddress(slot, U.o2a(deserialize(member_ptr)));
+        if (member_ptr != 0L) u.putObject(object, fo, deserialize(member_ptr));
       }
     }
     
+    // TODO remove
+    free(ref);
     return object;
   }
   
@@ -115,19 +126,25 @@ public class Serializer {
     Class<?> clazz = U.clazz(klass);
     Object object = Array.newInstance(clazz.getComponentType(), size);
     
-    long dst = U.o2a(object);
     final int scale = u.arrayIndexScale(clazz);
     final int offset = u.arrayBaseOffset(clazz);
     
-    if (Reflection.isPrimitive(clazz.getComponentType())) u.copyMemory(ref + _offset, dst + offset, size * scale);
+    if (Reflection.isPrimitive(clazz.getComponentType())) u.copyMemory(null, ref + _offset, object, offset, size * scale);
     else {
+      Object[] _object = (Object[]) object;
       for (int i = 0; i < size; i++) {
-        final long slot = dst + offset + i * scale;
-        final long member_ptr = u.getAddress(slot);
-        if (member_ptr != 0L) u.putAddress(slot, U.o2a(deserialize(member_ptr)));
+        final long slot0 = ref + _offset + i * scale;
+        final long member_ptr = u.getAddress(slot0);
+        if (member_ptr != 0L) _object[i] = deserialize(member_ptr);
       }
     }
     
+    // TODO remove
+    free(ref);
     return object;
+  }
+  
+  public static void free(long ptr) {
+    u.freeMemory(ptr);
   }
 }

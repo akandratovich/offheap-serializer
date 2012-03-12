@@ -11,25 +11,25 @@ import java.util.Map;
 import sun.misc.Unsafe;
 
 public final class Reflection {
-  public static final int MAGIC_SIZE = 2 * Unsafe.ADDRESS_SIZE;
+  public static final long MAGIC_SIZE = 2 * Unsafe.ADDRESS_SIZE;
   private static final Unsafe u = U.instance();
   
 	private Reflection() {}
 	
-	public static int size(Class<?> c) {
-	  if (isPrimitive(c)) return SCALE.get(c);
-	  
-	  int size = 0;
-	  
-    Class<?> parent = c.getSuperclass();
-    if (parent != null) size = size(parent);
-    
-    for (Field f : c.getDeclaredFields())
-      if (!(Modifier.isStatic(f.getModifiers()) || f.isSynthetic()))
-        size += u.arrayIndexScale(arrayClass(f.getType()));
-    
-		return correctSize(size);
-	}
+//	public static int size(Class<?> c) {
+//	  if (isPrimitive(c)) return SCALE.get(c);
+//	  
+//	  int size = 0;
+//	  
+//    Class<?> parent = c.getSuperclass();
+//    if (parent != null) size = size(parent);
+//    
+//    for (Field f : c.getDeclaredFields())
+//      if (!(Modifier.isStatic(f.getModifiers()) || f.isSynthetic()))
+//        size += u.arrayIndexScale(arrayClass(f.getType()));
+//    
+//		return correctSize(size);
+//	}
 	
 	public static int size(Object o) {
 	  if (isPrimitive(o.getClass())) return SCALE.get(o.getClass());
@@ -37,7 +37,7 @@ public final class Reflection {
 	}
 	
 	public static long klassPtr(Object o) {
-	  return u.getAddress(U.o2a(o) + Unsafe.ADDRESS_SIZE);
+	  return u.getLong(o, (long) Unsafe.ADDRESS_SIZE);
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -45,9 +45,9 @@ public final class Reflection {
 	  return (Class<A[]>) Array.newInstance(type, 0).getClass();
 	}
 	
-	private static int correctSize(int size) {
-		return size % 8 == 0 ? size : 8 * (size / 8 + 1);
-	}
+//	private static int correctSize(int size) {
+//		return size % 8 == 0 ? size : 8 * (size / 8 + 1);
+//	}
 	
 	public static List<Field> getAllFields(Class<?> type) {
 	  List<Field> result = new ArrayList<Field>();

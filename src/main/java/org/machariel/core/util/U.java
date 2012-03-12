@@ -20,15 +20,15 @@ public final class U {
 	}
 	
 	public static long o2a(Object o) {
-		return u.getLong(new Object[] {o}, 3L * Unsafe.ADDRESS_SIZE);
+	  return u.getLong(new Object[] {o}, 3L * Unsafe.ADDRESS_SIZE);
 	}
 	
 	public static Object a2o(long address) {
 		Object[] ar = new Object[1];
-		u.putLong(ar, 3L * Unsafe.ADDRESS_SIZE, address);
+		u.putLong(ar, 3L * Unsafe.ADDRESS_SIZE, (int) address);
 		return ar[0];
 	}
-	
+//	
 	public static boolean klass(long ptr) {
 	  return
 	      u.getAddress(Reflection.klassPtr(r) + Unsafe.ADDRESS_SIZE) == u.getAddress(ptr + Unsafe.ADDRESS_SIZE) ||
@@ -43,5 +43,5 @@ public final class U {
 	
 	private static final int[] pa = new int[0];
 	private static final Integer[] ra = new Integer[0];
-	private static final Integer r = new Integer(0);
+	private static final Integer r = new Integer(9);
 }
