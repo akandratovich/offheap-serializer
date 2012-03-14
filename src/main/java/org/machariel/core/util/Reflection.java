@@ -1,6 +1,5 @@
 package org.machariel.core.util;
 
-import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -16,38 +15,10 @@ public final class Reflection {
   
 	private Reflection() {}
 	
-//	public static int size(Class<?> c) {
-//	  if (isPrimitive(c)) return SCALE.get(c);
-//	  
-//	  int size = 0;
-//	  
-//    Class<?> parent = c.getSuperclass();
-//    if (parent != null) size = size(parent);
-//    
-//    for (Field f : c.getDeclaredFields())
-//      if (!(Modifier.isStatic(f.getModifiers()) || f.isSynthetic()))
-//        size += u.arrayIndexScale(arrayClass(f.getType()));
-//    
-//		return correctSize(size);
-//	}
-	
 	public static int size(Object o) {
-	  if (isPrimitive(o.getClass())) return SCALE.get(o.getClass());
-	  return u.getInt(klassPtr(o) + 3 * Unsafe.ADDRESS_SIZE);
+	  if (o.getClass().isPrimitive()) return SCALE.get(o.getClass());
+	  return u.getInt(u.getLong(o, (long) Unsafe.ADDRESS_SIZE) + 3 * Unsafe.ADDRESS_SIZE);
 	}
-	
-	public static long klassPtr(Object o) {
-	  return u.getLong(o, (long) Unsafe.ADDRESS_SIZE);
-	}
-	
-	@SuppressWarnings("unchecked")
-  public static <A> Class<A[]> arrayClass(Class<A> type) {
-	  return (Class<A[]>) Array.newInstance(type, 0).getClass();
-	}
-	
-//	private static int correctSize(int size) {
-//		return size % 8 == 0 ? size : 8 * (size / 8 + 1);
-//	}
 	
 	public static List<Field> getAllFields(Class<?> type) {
 	  List<Field> result = new ArrayList<Field>();
@@ -61,10 +32,6 @@ public final class Reflection {
 		if (parent != null) result.addAll(getAllFields(parent));
 		
 		return result;
-	}
-	
-	public static boolean isPrimitive(Class<?> type) {
-		return SCALE.containsKey(type);
 	}
 	
 	public static String name0(Field f, Class<?> domain) {

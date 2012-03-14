@@ -6,9 +6,8 @@ import java.lang.reflect.Field;
 import java.util.Random;
 
 import org.junit.Test;
-import org.machariel.core.PointerMigrationException;
 import org.machariel.core.access.ArrayAccessor.Raw;
-import org.machariel.core.serialization.Serializer;
+import org.machariel.core.serialization.UnsafeSerializer;
 
 import sun.misc.Unsafe;
 
@@ -24,11 +23,11 @@ public class RawArray {
   }
   
   @Test
-  public void intArray() throws InstantiationException, PointerMigrationException {
+  public void intArray() throws InstantiationException {
     int[] a = new int[r.nextInt(100) + 1];
     for (int i = 0; i < a.length; i++) a[i] = r.nextInt();
     
-    long ref = Serializer.serialize(a);
+    long ref = UnsafeSerializer.serialize(a);
     
     for (int i = 0; i < 10; i++) {
       int index = r.nextInt(a.length);
@@ -44,17 +43,17 @@ public class RawArray {
       assertEquals(value0, value1);
     }
     
-    int[] b = (int[]) Serializer.deserialize(ref);
+    int[] b = (int[]) UnsafeSerializer.deserialize(ref);
     
     assertArrayEquals(a, b);
   }
   
   @Test
-  public void booleanArray() throws InstantiationException, PointerMigrationException {
+  public void booleanArray() throws InstantiationException {
     boolean[] a = new boolean[r.nextInt(100) + 1];
     for (int i = 0; i < a.length; i++) a[i] = r.nextBoolean();
     
-    long ref = Serializer.serialize(a);
+    long ref = UnsafeSerializer.serialize(a);
     
     for (int i = 0; i < 10; i++) {
       int index = r.nextInt(a.length);
@@ -70,17 +69,17 @@ public class RawArray {
       assertEquals(value0, value1);
     }
     
-    boolean[] b = (boolean[]) Serializer.deserialize(ref);
+    boolean[] b = (boolean[]) UnsafeSerializer.deserialize(ref);
     
     for (int i = 0; i < a.length; i++) assertEquals(a[i], b[i]);
   }
   
   @Test
-  public void charArray() throws InstantiationException, PointerMigrationException {
+  public void charArray() throws InstantiationException {
     char[] a = new char[r.nextInt(100) + 1];
     for (int i = 0; i < a.length; i++) a[i] = (char) r.nextInt(255);
     
-    long ref = Serializer.serialize(a);
+    long ref = UnsafeSerializer.serialize(a);
     
     for (int i = 0; i < 10; i++) {
       int index = r.nextInt(a.length);
@@ -96,17 +95,17 @@ public class RawArray {
       assertEquals(value0, value1);
     }
     
-    char[] b = (char[]) Serializer.deserialize(ref);
+    char[] b = (char[]) UnsafeSerializer.deserialize(ref);
     
     assertArrayEquals(a, b);
   }
   
   @Test
-  public void byteArray() throws InstantiationException, PointerMigrationException {
+  public void byteArray() throws InstantiationException {
     byte[] a = new byte[r.nextInt(100) + 1];
     for (int i = 0; i < a.length; i++) a[i] = (byte) r.nextInt(255);
     
-    long ref = Serializer.serialize(a);
+    long ref = UnsafeSerializer.serialize(a);
     
     for (int i = 0; i < 10; i++) {
       int index = r.nextInt(a.length);
@@ -122,17 +121,17 @@ public class RawArray {
       assertEquals(value0, value1);
     }
     
-    byte[] b = (byte[]) Serializer.deserialize(ref);
+    byte[] b = (byte[]) UnsafeSerializer.deserialize(ref);
     
     assertArrayEquals(a, b);
   }
   
   @Test
-  public void shortArray() throws InstantiationException, PointerMigrationException {
+  public void shortArray() throws InstantiationException {
     short[] a = new short[r.nextInt(100) + 1];
     for (int i = 0; i < a.length; i++) a[i] = (short) r.nextInt(255);
     
-    long ref = Serializer.serialize(a);
+    long ref = UnsafeSerializer.serialize(a);
     
     for (int i = 0; i < 10; i++) {
       int index = r.nextInt(a.length);
@@ -148,17 +147,17 @@ public class RawArray {
       assertEquals(value0, value1);
     }
     
-    short[] b = (short[]) Serializer.deserialize(ref);
+    short[] b = (short[]) UnsafeSerializer.deserialize(ref);
     
     assertArrayEquals(a, b);
   }
   
   @Test
-  public void longArray() throws InstantiationException, PointerMigrationException {
+  public void longArray() throws InstantiationException {
     long[] a = new long[r.nextInt(100) + 1];
     for (int i = 0; i < a.length; i++) a[i] = r.nextLong();
     
-    long ref = Serializer.serialize(a);
+    long ref = UnsafeSerializer.serialize(a);
     
     for (int i = 0; i < 10; i++) {
       int index = r.nextInt(a.length);
@@ -174,17 +173,17 @@ public class RawArray {
       assertEquals(value0, value1);
     }
     
-    long[] b = (long[]) Serializer.deserialize(ref);
+    long[] b = (long[]) UnsafeSerializer.deserialize(ref);
     
     assertArrayEquals(a, b);
   }
   
   @Test
-  public void floatArray() throws InstantiationException, PointerMigrationException {
+  public void floatArray() throws InstantiationException {
     float[] a = new float[r.nextInt(100) + 1];
     for (int i = 0; i < a.length; i++) a[i] = r.nextFloat();
     
-    long ref = Serializer.serialize(a);
+    long ref = UnsafeSerializer.serialize(a);
     
     for (int i = 0; i < 10; i++) {
       int index = r.nextInt(a.length);
@@ -200,17 +199,17 @@ public class RawArray {
       assertEquals(value0, value1, Float.MIN_VALUE);
     }
     
-    float[] b = (float[]) Serializer.deserialize(ref);
+    float[] b = (float[]) UnsafeSerializer.deserialize(ref);
     
     assertArrayEquals(a, b, Float.MIN_VALUE);
   }
   
   @Test
-  public void doubleArray() throws InstantiationException, PointerMigrationException {
+  public void doubleArray() throws InstantiationException {
     double[] a = new double[r.nextInt(100) + 1];
     for (int i = 0; i < a.length; i++) a[i] = r.nextDouble();
     
-    long ref = Serializer.serialize(a);
+    long ref = UnsafeSerializer.serialize(a);
     
     for (int i = 0; i < 10; i++) {
       int index = r.nextInt(a.length);
@@ -226,7 +225,7 @@ public class RawArray {
       assertEquals(value0, value1, 0.1);
     }
     
-    double[] b = (double[]) Serializer.deserialize(ref);
+    double[] b = (double[]) UnsafeSerializer.deserialize(ref);
     
     assertArrayEquals(a, b, 0.1);
   }

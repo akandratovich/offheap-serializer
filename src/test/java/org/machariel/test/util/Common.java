@@ -35,7 +35,7 @@ public final class Common {
     if (arg0 == null || arg1 == null) return false;
     if (arg0.getClass() != arg1.getClass()) return false;
     
-    if (Reflection.isPrimitive(arg0.getClass())) return arg0 == arg1;
+    if (arg0.getClass().isPrimitive()) return arg0 == arg1;
     
     List<Field> fs = Reflection.getAllFields(arg0.getClass());
     
@@ -43,7 +43,7 @@ public final class Common {
     for (Field f : fs) {
       f.setAccessible(true);
       
-      if (Reflection.isPrimitive(f.getType())) {
+      if (f.getType().isPrimitive()) {
         if (!f.get(arg0).equals(f.get(arg1)))
           return false;
       } else if (!equal(f.get(arg0), f.get(arg1)))

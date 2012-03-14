@@ -1,9 +1,11 @@
 package org.machariel.test.data;
 
+import java.io.Serializable;
 import java.util.Random;
 
-public class Bean0 {
-	public int _int = 1;			// 3	4		30 + 8 + fill(8)
+public class Bean0 implements Serializable {
+  private static final long serialVersionUID = 5949449577385220029L;
+  public int _int = 1;			// 3	4		30 + 8 + fill(8)
 	public long _long = 2;			// 1	8
 	public byte _byte = 3;			// 7	1
 	public double _double = 4;		// 2	8
