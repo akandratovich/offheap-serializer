@@ -10,7 +10,7 @@ import java.util.Map;
 import sun.misc.Unsafe;
 
 public final class Reflection {
-  public static final long MAGIC_SIZE = 2 * Unsafe.ADDRESS_SIZE;
+  public static final long MAGIC_SIZE = Unsafe.ADDRESS_SIZE + Unsafe.ARRAY_INT_INDEX_SCALE;
   private static final Unsafe u = U.instance();
   
 	private Reflection() {}
