@@ -28,7 +28,7 @@ public class ArrayAccessor<A> {
     Class<A> cl = (Class<A>) array.getComponentType();
     if (cl.isPrimitive()) throw new IllegalArgumentException();
 	  
-	  scale = u.arrayIndexScale(array);
+	  scale = cl.isPrimitive() ? u.arrayIndexScale(array) : Unsafe.ADDRESS_SIZE;
 		sm = new ObjectAccessor<A>((Class<A>) array.getComponentType());
 	}
 	

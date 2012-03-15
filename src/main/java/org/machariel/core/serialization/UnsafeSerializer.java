@@ -10,7 +10,7 @@ import org.machariel.core.util.U;
 import sun.misc.Unsafe;
 
 
-// [int: size] [ptr: klass] [values]
+// [int: size] [id: klass] [values]
 public final class UnsafeSerializer {
   public static final long PTR_OFFSET = 2 * Unsafe.ARRAY_INT_INDEX_SCALE;
   private static final Unsafe u = U.instance();
@@ -52,21 +52,22 @@ public final class UnsafeSerializer {
     final int size = u.getInt(object, Reflection.MAGIC_SIZE);
     
     Class<?> array_class = object.getClass();
+    Class<?> ct = array_class.getComponentType();
     ClassBucket.ensure(array_class);
     
-    final int scale = u.arrayIndexScale(array_class);
+    final int scale = ct.isPrimitive() ? u.arrayIndexScale(array_class) : Unsafe.ADDRESS_SIZE;
     final int offset = u.arrayBaseOffset(array_class);
     final long ref = u.allocateMemory(size * scale + PTR_OFFSET);
     
     u.putInt(ref + Unsafe.ARRAY_INT_INDEX_SCALE, array_class.hashCode());
     
     boolean monotype = true && depth > 0;
-    if (array_class.getComponentType().isPrimitive()) u.copyMemory(object, offset, null, ref + PTR_OFFSET, size * scale);
+    if (ct.isPrimitive()) u.copyMemory(object, offset, null, ref + PTR_OFFSET, size * scale);
     else {
       if (depth > 0) {
         Class<?> in = null;
         Object[] _object = (Object[]) object;
-        if (!array_class.getComponentType().isArray()) {
+        if (!ct.isArray()) {
           for (Object m : _object) if (m != null && monotype) {
             if (in == null) in = m.getClass();
             else if (in != m.getClass()) {
@@ -148,12 +149,13 @@ public final class UnsafeSerializer {
     final boolean monotype = size < 0;
     if (monotype) size = -size;
     
-    Object object = Array.newInstance(clazz.getComponentType(), size);
+    Class<?> ct = clazz.getComponentType();
+    Object object = Array.newInstance(ct, size);
     
-    final int scale = u.arrayIndexScale(clazz);
+    final int scale = ct.isPrimitive() ? u.arrayIndexScale(clazz) : Unsafe.ADDRESS_SIZE;
     final int offset = u.arrayBaseOffset(clazz);
     
-    if (clazz.getComponentType().isPrimitive()) u.copyMemory(null, ref + PTR_OFFSET, object, offset, size * scale);
+    if (ct.isPrimitive()) u.copyMemory(null, ref + PTR_OFFSET, object, offset, size * scale);
     else {
       Object[] _object = (Object[]) object;
       if (monotype) {
