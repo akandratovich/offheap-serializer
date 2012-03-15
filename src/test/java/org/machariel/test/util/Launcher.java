@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.Method;
+import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -22,9 +23,11 @@ public class Launcher {
     for (Class<?> cl : pack) {
       Object instance = cl.newInstance();
       for (Method m : cl.getDeclaredMethods()) {
-        if (m.getAnnotation(Test.class) != null) run(instance, m, 100000);
+//        if (m.getAnnotation(Test.class) != null) run(instance, m, 100000);
       }
     }
+    
+    System.out.println(ByteOrder.nativeOrder());
     
     System.exit(0);
 //    run(new ReferenceArray(), ReferenceArray.class.getDeclaredMethod("testGenericArray2"), 1000);

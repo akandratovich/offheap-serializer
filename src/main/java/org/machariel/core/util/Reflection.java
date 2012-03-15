@@ -17,8 +17,13 @@ public final class Reflection {
 	
 	public static int size(Object o) {
 	  if (o.getClass().isPrimitive()) return SCALE.get(o.getClass());
-	  return u.getInt(u.getLong(o, (long) Unsafe.ADDRESS_SIZE) + 3 * Unsafe.ADDRESS_SIZE);
+	  return u.getInt(normalize(u.getInt(o, (long) Unsafe.ADDRESS_SIZE)) + 3 * Unsafe.ADDRESS_SIZE);
 	}
+	
+  public static long normalize(int value) {
+    if (value >= 0) return value;
+    return (~0L >>> 32) & value;
+  }
 	
 	public static List<Field> getAllFields(Class<?> type) {
 	  List<Field> result = new ArrayList<Field>();
