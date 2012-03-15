@@ -4,6 +4,9 @@ import java.lang.reflect.Field;
 import java.util.List;
 
 import org.machariel.core.util.Reflection;
+import org.machariel.core.util.U;
+
+import sun.misc.Unsafe;
 
 public final class Common {
 	private Common() {}
@@ -62,4 +65,18 @@ public final class Common {
     
     return true;
   }
+  
+  public static void dump(long ref, int size) {
+    byte[] hex = new byte[size];
+    for (int i = 0; i < size; i++) hex[i] = u.getByte(ref + i);
+    System.out.println(hex(hex));
+  }
+  
+  public static void dump(Object o, int size) {
+    byte[] hex = new byte[size];
+    for (int i = 0; i < size; i++) hex[i] = u.getByte(o, (long) i);
+    System.out.println(hex(hex));
+  }
+  
+  private static final Unsafe u = U.instance();
 }
