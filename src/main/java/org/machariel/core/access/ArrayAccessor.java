@@ -56,67 +56,67 @@ public class ArrayAccessor<A> {
   
 	public static class Raw {
     public static void put(long ref, int index, int value) {
-      u.putInt(ref + UnsafeSerializer.PTR_OFFSET + index * Unsafe.ARRAY_INT_INDEX_SCALE, value);
+      u.putInt(ref + UnsafeSerializer.PTR_OFFSET + index * Reflection.ARRAY_INT_INDEX_SCALE, value);
     }
     
     public static void put(long ref, int index, short value) {
-      u.putShort(ref + UnsafeSerializer.PTR_OFFSET + index * Unsafe.ARRAY_SHORT_INDEX_SCALE, value);
+      u.putShort(ref + UnsafeSerializer.PTR_OFFSET + index * Reflection.ARRAY_SHORT_INDEX_SCALE, value);
     }
     
     public static void put(long ref, int index, long value) {
-      u.putLong(ref + UnsafeSerializer.PTR_OFFSET + index * Unsafe.ARRAY_LONG_INDEX_SCALE, value);
+      u.putLong(ref + UnsafeSerializer.PTR_OFFSET + index * Reflection.ARRAY_LONG_INDEX_SCALE, value);
     }
     
     public static void put(long ref, int index, char value) {
-      u.putChar(ref + UnsafeSerializer.PTR_OFFSET + index * Unsafe.ARRAY_CHAR_INDEX_SCALE, value);
+      u.putChar(ref + UnsafeSerializer.PTR_OFFSET + index * Reflection.ARRAY_CHAR_INDEX_SCALE, value);
     }
     
     public static void put(long ref, int index, byte value) {
-      u.putByte(ref + UnsafeSerializer.PTR_OFFSET + index * Unsafe.ARRAY_BYTE_INDEX_SCALE, value);
+      u.putByte(ref + UnsafeSerializer.PTR_OFFSET + index * Reflection.ARRAY_BYTE_INDEX_SCALE, value);
     }
     
     public static void put(long ref, int index, boolean value) {
-      u.putByte(ref + UnsafeSerializer.PTR_OFFSET + index * Unsafe.ARRAY_BOOLEAN_INDEX_SCALE, (byte) (value ? 1 : 0));
+      u.putByte(ref + UnsafeSerializer.PTR_OFFSET + index * Reflection.ARRAY_BOOLEAN_INDEX_SCALE, (byte) (value ? 1 : 0));
     }
     
     public static void put(long ref, int index, double value) {
-      u.putDouble(ref + UnsafeSerializer.PTR_OFFSET + index * Unsafe.ARRAY_DOUBLE_INDEX_SCALE, value);
+      u.putDouble(ref + UnsafeSerializer.PTR_OFFSET + index * Reflection.ARRAY_DOUBLE_INDEX_SCALE, value);
     }
     
     public static void put(long ref, int index, float value) {
-      u.putFloat(ref + UnsafeSerializer.PTR_OFFSET + index * Unsafe.ARRAY_FLOAT_INDEX_SCALE, value);
+      u.putFloat(ref + UnsafeSerializer.PTR_OFFSET + index * Reflection.ARRAY_FLOAT_INDEX_SCALE, value);
     }
     
     public static int getInt(long ref, int index) {
-      return u.getInt(ref + UnsafeSerializer.PTR_OFFSET + index * Unsafe.ARRAY_INT_INDEX_SCALE);
+      return u.getInt(ref + UnsafeSerializer.PTR_OFFSET + index * Reflection.ARRAY_INT_INDEX_SCALE);
     }
     
     public static boolean getBoolean(long ref, int index) {
-      return u.getByte(ref + UnsafeSerializer.PTR_OFFSET + index * Unsafe.ARRAY_BOOLEAN_INDEX_SCALE) > 0;
+      return u.getByte(ref + UnsafeSerializer.PTR_OFFSET + index * Reflection.ARRAY_BOOLEAN_INDEX_SCALE) > 0;
     }
     
     public static byte getByte(long ref, int index) {
-      return u.getByte(ref + UnsafeSerializer.PTR_OFFSET + index * Unsafe.ARRAY_BYTE_INDEX_SCALE);
+      return u.getByte(ref + UnsafeSerializer.PTR_OFFSET + index * Reflection.ARRAY_BYTE_INDEX_SCALE);
     }
     
     public static char getChar(long ref, int index) {
-      return u.getChar(ref + UnsafeSerializer.PTR_OFFSET + index * Unsafe.ARRAY_CHAR_INDEX_SCALE);
+      return u.getChar(ref + UnsafeSerializer.PTR_OFFSET + index * Reflection.ARRAY_CHAR_INDEX_SCALE);
     }
     
     public static double getDouble(long ref, int index) {
-      return u.getDouble(ref + UnsafeSerializer.PTR_OFFSET + index * Unsafe.ARRAY_DOUBLE_INDEX_SCALE);
+      return u.getDouble(ref + UnsafeSerializer.PTR_OFFSET + index * Reflection.ARRAY_DOUBLE_INDEX_SCALE);
     }
     
     public static float getFloat(long ref, int index) {
-      return u.getFloat(ref + UnsafeSerializer.PTR_OFFSET + index * Unsafe.ARRAY_FLOAT_INDEX_SCALE);
+      return u.getFloat(ref + UnsafeSerializer.PTR_OFFSET + index * Reflection.ARRAY_FLOAT_INDEX_SCALE);
     }
     
     public static short getShort(long ref, int index) {
-      return u.getShort(ref + UnsafeSerializer.PTR_OFFSET + index * Unsafe.ARRAY_SHORT_INDEX_SCALE);
+      return u.getShort(ref + UnsafeSerializer.PTR_OFFSET + index * Reflection.ARRAY_SHORT_INDEX_SCALE);
     }
     
     public static long getLong(long ref, int index) {
-      return u.getLong(ref + UnsafeSerializer.PTR_OFFSET + index * Unsafe.ARRAY_LONG_INDEX_SCALE);
+      return u.getLong(ref + UnsafeSerializer.PTR_OFFSET + index * Reflection.ARRAY_LONG_INDEX_SCALE);
     }
 	}
 	

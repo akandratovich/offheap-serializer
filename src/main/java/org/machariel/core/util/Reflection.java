@@ -11,9 +11,29 @@ import sun.misc.Unsafe;
 
 public final class Reflection {
   private static final Unsafe u = U.instance();
-  public static final int OOP_SIZE = oop_size();
-  public static final int OVERBOOK = Unsafe.ADDRESS_SIZE - Reflection.OOP_SIZE;
-  public static final long MAGIC_SIZE = Unsafe.ADDRESS_SIZE + OOP_SIZE;
+  public static final int OOP_SIZE = u.arrayIndexScale(Object[].class);
+  public static final int ADDRESS_SIZE = u.addressSize();
+  public static final int OVERBOOK = ADDRESS_SIZE - Reflection.OOP_SIZE;
+  public static final long MAGIC_SIZE = ADDRESS_SIZE + OOP_SIZE;
+  
+  /** The value of {@code arrayIndexScale(boolean[].class)} */
+  public static final int ARRAY_BOOLEAN_INDEX_SCALE = u.arrayIndexScale(boolean[].class);
+  /** The value of {@code arrayIndexScale(byte[].class)} */
+  public static final int ARRAY_BYTE_INDEX_SCALE = u.arrayIndexScale(byte[].class);
+  /** The value of {@code arrayIndexScale(short[].class)} */
+  public static final int ARRAY_SHORT_INDEX_SCALE = u.arrayIndexScale(short[].class);
+  /** The value of {@code arrayIndexScale(char[].class)} */
+  public static final int ARRAY_CHAR_INDEX_SCALE = u.arrayIndexScale(char[].class);
+  /** The value of {@code arrayIndexScale(int[].class)} */
+  public static final int ARRAY_INT_INDEX_SCALE = u.arrayIndexScale(int[].class);
+  /** The value of {@code arrayIndexScale(long[].class)} */
+  public static final int ARRAY_LONG_INDEX_SCALE = u.arrayIndexScale(long[].class);
+  /** The value of {@code arrayIndexScale(float[].class)} */
+  public static final int ARRAY_FLOAT_INDEX_SCALE = u.arrayIndexScale(float[].class);
+  /** The value of {@code arrayIndexScale(double[].class)} */
+  public static final int ARRAY_DOUBLE_INDEX_SCALE = u.arrayIndexScale(double[].class);
+  /** The value of {@code arrayIndexScale(Object[].class)} */
+  public static final int ARRAY_OBJECT_INDEX_SCALE = u.arrayIndexScale(Object[].class);
   
 	private Reflection() {}
 	
@@ -25,15 +45,9 @@ public final class Reflection {
 	  return OOP_SIZE == 8 ? u.getLong(o, offset) : u.getInt(o, offset);
 	}
 	
-	private static int oop_size() {
-	  @SuppressWarnings("unused") class A { Object f0; int i; };
-	  
-	  return size(new A()) > 24 ? 8 : 4;
-	}
-	
 	public static int size(Object o) {
 	  if (o.getClass().isPrimitive()) return SCALE.get(o.getClass());
-	  return u.getInt(normalize(getOopAddress(o, (long) Unsafe.ADDRESS_SIZE)) + 3 * Unsafe.ADDRESS_SIZE);
+	  return u.getInt(normalize(getOopAddress(o, (long) ADDRESS_SIZE)) + 3 * ADDRESS_SIZE);
 	}
 	
   public static long normalize(long value) {
@@ -80,13 +94,13 @@ public final class Reflection {
 	
 	@SuppressWarnings("serial")
 	private static final Map<Class<?>, Integer> SCALE = new HashMap<Class<?>, Integer>() {{
-		put(boolean.class, Unsafe.ARRAY_BOOLEAN_INDEX_SCALE);
-		put(char.class, Unsafe.ARRAY_CHAR_INDEX_SCALE);
-		put(byte.class, Unsafe.ARRAY_BYTE_INDEX_SCALE);
-		put(short.class, Unsafe.ARRAY_SHORT_INDEX_SCALE);
-		put(int.class, Unsafe.ARRAY_INT_INDEX_SCALE);
-		put(long.class, Unsafe.ARRAY_LONG_INDEX_SCALE);
-		put(float.class, Unsafe.ARRAY_FLOAT_INDEX_SCALE);
-		put(double.class, Unsafe.ARRAY_DOUBLE_INDEX_SCALE);
+		put(boolean.class, u.arrayIndexScale(boolean[].class));
+		put(char.class, u.arrayIndexScale(char[].class));
+		put(byte.class, u.arrayIndexScale(byte[].class));
+		put(short.class, u.arrayIndexScale(short[].class));
+		put(int.class, u.arrayIndexScale(int[].class));
+		put(long.class, u.arrayIndexScale(long[].class));
+		put(float.class, u.arrayIndexScale(float[].class));
+		put(double.class, u.arrayIndexScale(double[].class));
 	}};
 }

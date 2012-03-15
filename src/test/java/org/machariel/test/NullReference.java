@@ -10,7 +10,7 @@ import org.machariel.test.util.Common;
 public class NullReference {
 
   @Test
-  public void test() throws InstantiationException, IllegalArgumentException, IllegalAccessException {
+  public void test() throws Exception {
     Bean2 bean0 = new Bean2();
     bean0.randomize();
     long ref = UnsafeSerializer.serialize(bean0, 2);

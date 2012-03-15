@@ -3,6 +3,7 @@ package org.machariel.core;
 import java.lang.reflect.Field;
 import java.security.InvalidParameterException;
 import java.util.Arrays;
+import java.util.Comparator;
 
 import org.machariel.core.util.Reflection;
 import org.machariel.core.util.U;
@@ -24,16 +25,24 @@ public final class ClassMap {
     type = t;
     
     Field[] fs = t.isArray() ? new Field[0] : Reflection.getAllFields(t).toArray(new Field[] {});
-    name = new String[fs.length];
-    offset = new long[fs.length];
-    delta = new int[fs.length];
-    field = new Field[fs.length];
+    length = fs.length;
     
-    for (int i = 0; i < fs.length; i++) name[i] = Reflection.name0(fs[i], t);
+    Arrays.sort(fs, new Comparator<Field>() {
+      public int compare(Field o1, Field o2) {
+        return (int) (u.objectFieldOffset(o1) - u.objectFieldOffset(o2));
+      }
+    });
+    
+    name = new String[length];
+    offset = new long[length];
+    delta = new int[length];
+    field = new Field[length];
+    
+    for (int i = 0; i < length; i++) name[i] = Reflection.name0(fs[i], t);
     Arrays.sort(name);
     
-    int[] _reference = new int[fs.length];
-    int[] _primitive = new int[fs.length];
+    int[] _reference = new int[length];
+    int[] _primitive = new int[length];
     int k = 0;
     int j = 0;
     for (Field f : fs) {
@@ -50,18 +59,13 @@ public final class ClassMap {
     System.arraycopy(_primitive, 0, primitive, 0, primitive.length);
     System.arraycopy(_reference, 0, reference, 0, reference.length);
     
-    Arrays.sort(primitive);
-    Arrays.sort(reference);
-    
-    length = fs.length;
-    
     int _overbook = 0;
-    if (Reflection.OOP_SIZE != Unsafe.ADDRESS_SIZE)
+    if (Reflection.OOP_SIZE != Reflection.ADDRESS_SIZE)
       for (int i : reference)
         for (int q = 0; q < length; q++)
           if (offset[q] > offset[i]) {
-            delta[q] = delta[q] + Unsafe.ADDRESS_SIZE - Reflection.OOP_SIZE;
-            _overbook += Unsafe.ADDRESS_SIZE - Reflection.OOP_SIZE;
+            delta[q] = delta[q] + Reflection.ADDRESS_SIZE - Reflection.OOP_SIZE;
+            _overbook += Reflection.ADDRESS_SIZE - Reflection.OOP_SIZE;
           }
     
     overbook = _overbook;

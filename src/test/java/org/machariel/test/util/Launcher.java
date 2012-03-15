@@ -16,23 +16,36 @@ import java.util.Random;
 import org.junit.Test;
 import org.machariel.core.serialization.UnsafeSerializer;
 import org.machariel.core.util.Reflection;
+import org.machariel.test.Extends;
+import org.machariel.test.NullReference;
+import org.machariel.test.Primitive;
+import org.machariel.test.RawArray;
+import org.machariel.test.Reference;
+import org.machariel.test.ReferenceArray;
+import org.machariel.test.ZeroDepth;
 import org.machariel.test.data.*;
 
 public class Launcher {
   public static void main(String[] args) throws Exception {
+    
+    System.out.println("magic: " + Reflection.MAGIC_SIZE);
+    System.out.println("oopsz: " + Reflection.OOP_SIZE);
+    System.out.println("overb: " + Reflection.OVERBOOK);
+    
     Class<?>[] pack = classes("org.machariel.test");
     for (Class<?> cl : pack) {
+//      System.out.println("          " + cl);
       Object instance = cl.newInstance();
+//      System.out.println("          " + instance);
       for (Method m : cl.getDeclaredMethods()) {
-//        if (m.getAnnotation(Test.class) != null) run(instance, m, 100000);
+//        System.out.println("          " + m);
+        if (m.getAnnotation(Test.class) != null) run(instance, m, 100000);
       }
     }
     
+    System.out.println("finish");
     
-    System.out.println(Reflection.OOP_SIZE);
-    System.out.println(ByteOrder.nativeOrder());
-    
-    System.exit(0);
+//    System.exit(0);
 //    run(new ReferenceArray(), ReferenceArray.class.getDeclaredMethod("testGenericArray2"), 1000);
     
     
@@ -58,21 +71,21 @@ public class Launcher {
 //    
 //    System.exit(0);
     
-    Random r = new Random();
+//    Random r = new Random();
 
 //     Bean1 o0 = new Bean1();
 
 //    Object[] o = new Object[r.nextInt(100) + 1];
-     Object[] o = new Object[50];
+//     Object[] o = new Object[50];
 //     for (int i = 0; i < o.length; i++) o[i] = new Object();
-    for (int i = 0; i < o.length; i++) o[i] = r.nextBoolean() ? new Bean1().randomize() : new Bean3().randomize();
+//    for (int i = 0; i < o.length; i++) o[i] = r.nextBoolean() ? new Bean1().randomize() : new Bean3().randomize();
 //     for (int i = 0; i < o.length; i++) o[i] = new Bean1();
     
 //    int[] o1 = new int[r.nextInt(100) + 1];
 //    for (int i = 0; i < o1.length; i++) o1[i] = r.nextInt();
     
-    perf(o);
-    System.out.println(o.getClass() + " [" + o.length + "]");
+//    perf(o);
+//    System.out.println(o.getClass() + " [" + o.length + "]");
   }
   
   private static void perf(Object o) throws InstantiationException, ClassNotFoundException, IllegalArgumentException, IllegalAccessException, IOException {
@@ -136,7 +149,7 @@ public class Launcher {
   private static void run(Object object, Method method, int count) {
     int i = 0;
     try {
-      for (i = 0; i <= count; i++) {
+      for (i = 0; i < count; i++) {
         Lg.clear();
         method.invoke(object);
       }
@@ -150,18 +163,25 @@ public class Launcher {
   
   private static Class<?>[] classes(String pack) throws ClassNotFoundException {
     List<Class<?>> back = new ArrayList<Class<?>>();
+    back.add(Extends.class);
+    back.add(NullReference.class);
+    back.add(Primitive.class);
+    back.add(RawArray.class);
+    back.add(ReferenceArray.class);
+    back.add(Reference.class);
+    back.add(ZeroDepth.class);
     
-    String root = new File(".").getAbsolutePath() + "/src/test/java";
-    for (String path :  pack.split("\\.")) root += "/" + path;
-    
-    File pkg = new File(root);
-    for (File cl : pkg.listFiles()) {
-      if (cl.getName().endsWith(".java")) {
-        String name = pack + "." + cl.getName().split("\\.")[0];
-        back.add(Class.forName(name));
-      }
-    }
-    
+//    String root = new File(".").getAbsolutePath() + "/src/test/java";
+//    for (String path :  pack.split("\\.")) root += "/" + path;
+//    
+//    File pkg = new File(root);
+//    for (File cl : pkg.listFiles()) {
+//      if (cl.getName().endsWith(".java")) {
+//        String name = pack + "." + cl.getName().split("\\.")[0];
+//        back.add(Class.forName(name));
+//      }
+//    }
+//    
     return back.toArray(new Class[] {});
   }
   

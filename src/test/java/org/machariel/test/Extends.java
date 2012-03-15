@@ -15,6 +15,11 @@ public class Extends {
     
     bean0.randomize();
     long ref = UnsafeSerializer.serialize(bean0, 2);
+    
+//    Common.dump(bean0, 80);
+//    System.out.println();
+//    Common.dump(ref, 80);
+    
     Bean3 bean1 = (Bean3) UnsafeSerializer.deserialize(ref);
     
     assertTrue(Common.equal(bean0, bean1));
