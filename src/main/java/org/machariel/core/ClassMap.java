@@ -50,15 +50,19 @@ public final class ClassMap {
     System.arraycopy(_primitive, 0, primitive, 0, primitive.length);
     System.arraycopy(_reference, 0, reference, 0, reference.length);
     
+    Arrays.sort(primitive);
+    Arrays.sort(reference);
+    
     length = fs.length;
     
+    int _overbook = 0;
     if (Reflection.OOP_SIZE != Unsafe.ADDRESS_SIZE)
       for (int i : reference)
-        for (int q = i + 1; q < length; q++)
+        for (int q = i + 1; q < length; q++) {
           delta[q] = delta[q] + Unsafe.ADDRESS_SIZE - Reflection.OOP_SIZE;
+          _overbook += Unsafe.ADDRESS_SIZE - Reflection.OOP_SIZE;
+        }
     
-    int _overbook = 0;
-    for (int i : delta) _overbook += i;
     overbook = _overbook;
   }
   
