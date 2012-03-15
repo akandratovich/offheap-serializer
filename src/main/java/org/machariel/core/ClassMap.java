@@ -58,10 +58,11 @@ public final class ClassMap {
     int _overbook = 0;
     if (Reflection.OOP_SIZE != Unsafe.ADDRESS_SIZE)
       for (int i : reference)
-        for (int q = i + 1; q < length; q++) {
-          delta[q] = delta[q] + Unsafe.ADDRESS_SIZE - Reflection.OOP_SIZE;
-          _overbook += Unsafe.ADDRESS_SIZE - Reflection.OOP_SIZE;
-        }
+        for (int q = 0; q < length; q++)
+          if (offset[q] > offset[i]) {
+            delta[q] = delta[q] + Unsafe.ADDRESS_SIZE - Reflection.OOP_SIZE;
+            _overbook += Unsafe.ADDRESS_SIZE - Reflection.OOP_SIZE;
+          }
     
     overbook = _overbook;
   }
