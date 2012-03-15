@@ -10,17 +10,33 @@ import java.util.Map;
 import sun.misc.Unsafe;
 
 public final class Reflection {
-  public static final long MAGIC_SIZE = Unsafe.ADDRESS_SIZE + Unsafe.ARRAY_INT_INDEX_SCALE;
   private static final Unsafe u = U.instance();
+  public static final int OOP_SIZE = oop_size();
+  public static final int OVERBOOK = Unsafe.ADDRESS_SIZE - Reflection.OOP_SIZE;
+  public static final long MAGIC_SIZE = Unsafe.ADDRESS_SIZE + OOP_SIZE;
   
 	private Reflection() {}
 	
-	public static int size(Object o) {
-	  if (o.getClass().isPrimitive()) return SCALE.get(o.getClass());
-	  return u.getInt(normalize(u.getInt(o, (long) Unsafe.ADDRESS_SIZE)) + 3 * Unsafe.ADDRESS_SIZE);
+	public static long getOopAddress(long ref) {
+	  return OOP_SIZE == 8 ? u.getLong(ref) : u.getInt(ref);
 	}
 	
-  public static long normalize(int value) {
+	public static long getOopAddress(Object o, long offset) {
+	  return OOP_SIZE == 8 ? u.getLong(o, offset) : u.getInt(o, offset);
+	}
+	
+	private static int oop_size() {
+	  @SuppressWarnings("unused") class A { Object f0; int i; };
+	  
+	  return size(new A()) > 24 ? 8 : 4;
+	}
+	
+	public static int size(Object o) {
+	  if (o.getClass().isPrimitive()) return SCALE.get(o.getClass());
+	  return u.getInt(normalize(getOopAddress(o, (long) Unsafe.ADDRESS_SIZE)) + 3 * Unsafe.ADDRESS_SIZE);
+	}
+	
+  public static long normalize(long value) {
     if (value >= 0) return value;
     return (~0L >>> 32) & value;
   }

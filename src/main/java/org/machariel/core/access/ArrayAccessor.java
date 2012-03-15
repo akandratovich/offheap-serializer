@@ -1,6 +1,7 @@
 package org.machariel.core.access;
 
 import org.machariel.core.serialization.UnsafeSerializer;
+import org.machariel.core.util.Reflection;
 import org.machariel.core.util.U;
 
 import sun.misc.Unsafe;
@@ -28,7 +29,7 @@ public class ArrayAccessor<A> {
     Class<A> cl = (Class<A>) array.getComponentType();
     if (cl.isPrimitive()) throw new IllegalArgumentException();
 	  
-	  scale = cl.isPrimitive() ? u.arrayIndexScale(array) : Unsafe.ADDRESS_SIZE;
+	  scale = u.arrayIndexScale(array) + Reflection.OVERBOOK;
 		sm = new ObjectAccessor<A>((Class<A>) array.getComponentType());
 	}
 	

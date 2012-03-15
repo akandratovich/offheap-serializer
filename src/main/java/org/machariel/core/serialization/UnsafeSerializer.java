@@ -21,22 +21,21 @@ public final class UnsafeSerializer {
   
   public static long serialize(Object object, int depth) {
     if (object == null) return 0L;
-    
     if (object.getClass().isArray()) return serialize0(object, depth);
-    
     return serializecm(object, depth, ClassBucket.acquireMap(object.getClass()));
   }
   
   private static long serializecm(Object object, int depth, ClassMap cm) {
     final int size = Reflection.size(object);
-    final long ref = u.allocateMemory(size + PTR_OFFSET);
+    final long ref = u.allocateMemory(size + PTR_OFFSET + cm.overbook());
     
     u.putInt(ref, size);
     u.putInt(ref + Unsafe.ARRAY_INT_INDEX_SCALE, object.getClass().hashCode());
     u.copyMemory(object, Reflection.MAGIC_SIZE, null, ref + PTR_OFFSET, size - Reflection.MAGIC_SIZE);
     
     for (int i : cm.refs()) {
-      final long slot = ref + PTR_OFFSET + cm.offset(i) - Reflection.MAGIC_SIZE;
+      final long slot = ref + PTR_OFFSET + cm.offset(i) + cm.delta(i) - Reflection.MAGIC_SIZE;
+      if (Reflection.OVERBOOK > 0) u.copyMemory(slot, slot + Reflection.OVERBOOK, size - (cm.offset(i) + cm.delta(i) - Reflection.MAGIC_SIZE));
       if (depth > 0) {
         Object member = u.getObject(object, cm.offset(i));
         if (member != null) u.putAddress(slot, serialize(member, depth - 1));
@@ -55,7 +54,7 @@ public final class UnsafeSerializer {
     Class<?> ct = array_class.getComponentType();
     ClassBucket.ensure(array_class);
     
-    final int scale = ct.isPrimitive() ? u.arrayIndexScale(array_class) : Unsafe.ADDRESS_SIZE;
+    final int scale = u.arrayIndexScale(array_class) + (ct.isPrimitive() ? 0 : Reflection.OVERBOOK);
     final int offset = u.arrayBaseOffset(array_class);
     final long ref = u.allocateMemory(size * scale + PTR_OFFSET);
     
@@ -117,7 +116,7 @@ public final class UnsafeSerializer {
     Object object = u.allocateInstance(cm.type());
     
     for (int i : cm.prims()) {
-      final long fo = cm.offset(i);
+      final long fo = cm.offset(i) + cm.delta(i);
       final long slot = ref + PTR_OFFSET + fo - Reflection.MAGIC_SIZE;
       Class<?> mtype = cm.field(i).getType();
       
@@ -132,7 +131,7 @@ public final class UnsafeSerializer {
     }
     
     for (int i : cm.refs()) {
-      final long fo = cm.offset(i);
+      final long fo = cm.offset(i) + cm.delta(i);
       final long slot = ref + PTR_OFFSET + fo - Reflection.MAGIC_SIZE;
       final long member_ptr = u.getAddress(slot);
       if (member_ptr != 0L) u.putObject(object, fo, deserialize(member_ptr, free));
@@ -152,7 +151,7 @@ public final class UnsafeSerializer {
     Class<?> ct = clazz.getComponentType();
     Object object = Array.newInstance(ct, size);
     
-    final int scale = ct.isPrimitive() ? u.arrayIndexScale(clazz) : Unsafe.ADDRESS_SIZE;
+    final int scale = u.arrayIndexScale(clazz) + (ct.isPrimitive() ? 0 : Reflection.OVERBOOK);
     final int offset = u.arrayBaseOffset(clazz);
     
     if (ct.isPrimitive()) u.copyMemory(null, ref + PTR_OFFSET, object, offset, size * scale);

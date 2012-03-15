@@ -15,6 +15,7 @@ import java.util.Random;
 
 import org.junit.Test;
 import org.machariel.core.serialization.UnsafeSerializer;
+import org.machariel.core.util.Reflection;
 import org.machariel.test.data.*;
 
 public class Launcher {
@@ -27,6 +28,8 @@ public class Launcher {
       }
     }
     
+    
+    System.out.println(Reflection.OOP_SIZE);
     System.out.println(ByteOrder.nativeOrder());
     
     System.exit(0);

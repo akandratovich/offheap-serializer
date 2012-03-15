@@ -27,7 +27,7 @@ public final class Common {
 	  List<Field> fs = Reflection.getAllFields(o.getClass());
 	  for (Field f : fs) {
 	    f.setAccessible(true);
-	    sb.append("\n").append(f.getName()).append(" ").append(f.get(o));
+	    sb.append("\n").append(Reflection.name0(f, o.getClass())).append(" ").append(f.get(o));
 	  }
 	  
 	  return sb.toString();
