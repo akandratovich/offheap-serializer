@@ -7,8 +7,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import ca.juliusdavies.nanotime.Clock;
-
 import sun.misc.Unsafe;
 
 public final class Reflection {
@@ -19,7 +17,6 @@ public final class Reflection {
   public static final long MAGIC_SIZE = ADDRESS_SIZE + OOP_SIZE;
   
   static {
-    Clock.nativeTime();
     System.out.println("Machariel is initialized.");
     System.out.println("ADDRESS_SIZE: " + ADDRESS_SIZE + ";");
     System.out.println("OOP_HEADER_SIZE: " + MAGIC_SIZE + ";");

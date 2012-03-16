@@ -16,12 +16,13 @@ import org.machariel.core.access.ObjectAccessor;
 import org.machariel.core.serialization.UnsafeSerializer;
 import org.machariel.test.data.Bean0;
 import org.machariel.test.data.Bean3;
+import org.machariel.test.data.Bean4;
 import org.machariel.test.util.Common;
 
 public class Performance {
   private static Random r = new Random();
   
-  @Test
+//  @Test
   public void test() throws Exception {
     List<Bean3> o = new ArrayList<Bean3>();
     for (int i = 0; i < 50; i++) o.add(new Bean3().randomize());
@@ -29,7 +30,7 @@ public class Performance {
     serialization(o, "data: ArrayList<Bean3>(50)");
   }
   
-  @Test
+//  @Test
   public void test2() throws Exception {
     long[] o = new long[50];
     for (int i = 0; i < 50; i++) o[i] = r.nextLong();
@@ -37,13 +38,13 @@ public class Performance {
     serialization(o, "data: long[50]");
   }
   
-  @Test
+//  @Test
   public void test3() throws Exception {
     int o = r.nextInt();
     serialization(o, "data: int");
   }
   
-  @Test
+//  @Test
   public void test4() throws Exception {
     Object o = new Bean0().randomize();
     serialization(o, "data: Bean0");
@@ -51,17 +52,23 @@ public class Performance {
   
   @Test
   public void object_access() throws Exception {
-    Bean3 o[] = new Bean3[100];
-    for (int i = 0; i < o.length; i++) o[i] = new Bean3();
+    object_access(400, "field type: long (L1 cache)");
+    object_access(1000, "field type: long (L2 cache)");
+    object_access(100000, "field type: long (off cached)");
+  }
+  
+  public void object_access(int count, String message) throws Exception {
+    Bean4 o[] = new Bean4[count];
+    for (int i = 0; i < o.length; i++) o[i] = new Bean4();
     
-    ObjectAccessor<Bean3> oa = new ObjectAccessor<Bean3>(Bean3.class);
+    ObjectAccessor<Bean4> oa = new ObjectAccessor<Bean4>(Bean4.class);
     ClassMap cm = oa.getClassMap();
     
-    long ref[] = new long[o.length];
+    long ref[] = new long[count];
     for (int i = 0; i < ref.length; i++) ref[i] = UnsafeSerializer.serialize(o[i], 5);
     
-    int warm = 10 * 1000;
-    int run = 20 * 1000;
+    int warm = 10 * 1000 + count;
+    int run = 2000;
     
     long[] getj = new long[run];
     long[] setj = new long[run];
@@ -72,52 +79,52 @@ public class Performance {
     long[] geti = new long[run];
     long[] seti = new long[run];
     
-    for (int i = 0; i < warm * 10; i++) oa.getLong(ref[i % ref.length], "_long");
+    long[] tmp = new long[ref.length];
+    for (int i = 0; i < warm; i++) tmp[i % ref.length] = oa.getLong(ref[i % ref.length], "_long");
     for (int i = 0; i < run; i++) {
       long g0 = Common.time();
-      for (int k = 0; k < 1000; k++) oa.getLong(ref[k % ref.length], "_long");
+      for (int k = 0; k < count; k++) tmp[k] = oa.getLong(ref[k], "_long");
       long g1 = Common.time();
       get[i] = (g1 - g0);
     }
     
-    for (int i = 0; i < warm * 10; i++) oa.putLong(ref[i % ref.length], "_long", r.nextLong());
+    for (int i = 0; i < warm; i++) oa.putLong(ref[i % ref.length], "_long", r.nextLong());
     for (int i = 0; i < run; i++) {
       long g0 = Common.time();
-      for (int k = 0; k < 1000; k++) oa.putLong(ref[k % ref.length], "_long", r.nextLong());
+      for (int k = 0; k < count; k++) oa.putLong(ref[k], "_long", g0);
       long g1 = Common.time();
       set[i] = (g1 - g0);
     }
     
-    long[] tmp = new long[ref.length];
-    for (int i = 0; i < warm * 10; i++) tmp[i % ref.length] = o[i % ref.length]._long;
+    for (int i = 0; i < warm; i++) tmp[i % ref.length] = o[i % ref.length]._long;
     for (int i = 0; i < run; i++) {
       long g0 = Common.time();
-      for (int k = 0; k < 1000; k++) tmp[k % ref.length] = o[k % ref.length]._long;
+      for (int k = 0; k < count; k++) tmp[k] = o[k]._long;
       long g1 = Common.time();
       getj[i] = (g1 - g0);
     }
     
-    for (int i = 0; i < warm * 10; i++) o[i % ref.length]._long = r.nextLong();
+    for (int i = 0; i < warm; i++) o[i % ref.length]._long = r.nextLong();
     for (int i = 0; i < run; i++) {
       long g0 = Common.time();
-      for (int k = 0; k < 1000; k++) o[k % ref.length]._long = r.nextLong();
+      for (int k = 0; k < count; k++) o[k]._long = g0;
       long g1 = Common.time();
       setj[i] = (g1 - g0);
     }
     
     int index = cm.index("_long");
-    for (int i = 0; i < warm * 10; i++) oa.getLong(ref[i % ref.length], index);
+    for (int i = 0; i < warm; i++) tmp[i % ref.length] = oa.getLong(ref[i % ref.length], index);
     for (int i = 0; i < run; i++) {
       long g0 = Common.time();
-      for (int k = 0; k < 1000; k++) oa.getLong(ref[k % ref.length], index);
+      for (int k = 0; k < count; k++) tmp[k] = oa.getLong(ref[k], index);
       long g1 = Common.time();
       geti[i] = (g1 - g0);
     }
     
-    for (int i = 0; i < warm * 10; i++) oa.putLong(ref[i % ref.length], index, r.nextLong());
+    for (int i = 0; i < warm; i++) oa.putLong(ref[i % ref.length], index, r.nextLong());
     for (int i = 0; i < run; i++) {
       long g0 = Common.time();
-      for (int k = 0; k < 1000; k++) oa.putLong(ref[k % ref.length], index, r.nextLong());
+      for (int k = 0; k < count; k++) oa.putLong(ref[k], index, g0);
       long g1 = Common.time();
       seti[i] = (g1 - g0);
     }
@@ -129,18 +136,18 @@ public class Performance {
     Arrays.sort(seti);
     
     int max = 11;
-    System.out.println("field type: long");
+    System.out.println(message);
     System.out.println("access latency by field/index/java: get (M rps)");
     for (int i = 1; i < max; i++) {
       int p = i * run / max;
-      System.out.println(1e6 / get[p] + "\t" + 1e6 / geti[p] + "\t" + 1e6 / getj[p]);
+      System.out.println(String.format("%1$7.2f %2$7.2f %3$7.2f", (count * 1000.) / get[p], (count * 1000.) / geti[p], (count * 1000.) / getj[p]));
     }
     
     System.out.println();
     System.out.println("access latency by field/index/java: set (M rps)");
     for (int i = 1; i < max; i++) {
       int p = i * run / max;
-      System.out.println(1e6 / set[p] + "\t" + 1e6 / seti[p] + "\t" + 1e6 / setj[p]);
+      System.out.println(String.format("%1$7.2f %2$7.2f %3$7.2f", (count * 1000.) / set[p], (count * 1000.) / seti[p], (count * 1000.) / setj[p]));
     }
     
     System.out.println();
