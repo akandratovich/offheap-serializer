@@ -135,6 +135,9 @@ public class Performance {
     Arrays.sort(geti);
     Arrays.sort(seti);
     
+    Arrays.sort(getj);
+    Arrays.sort(setj);
+    
     int max = 11;
     System.out.println(message);
     System.out.println("access latency by field/index/java: get (M rps)");
