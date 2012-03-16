@@ -119,6 +119,10 @@ public final class ClassMap {
     return field[i];
   }
   
+  public String name(int i) {
+    return name[i];
+  }
+  
   public int index(String f) throws NoSuchFieldException {
     int position = Arrays.binarySearch(name, f);
     if (position < 0) throw new NoSuchFieldException(f);

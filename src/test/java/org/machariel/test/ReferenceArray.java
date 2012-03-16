@@ -67,7 +67,7 @@ public class ReferenceArray {
     Object[] a = new Object[r.nextInt(100) + 1];
     for (int i = 0; i < a.length; i++) a[i] = r.nextBoolean() ? new Bean1().randomize() : new Bean3().randomize();
     
-    long ref = UnsafeSerializer.serialize(a, 2);
+    long ref = UnsafeSerializer.serialize(a, 3);
     Object[] b = (Object[]) UnsafeSerializer.deserialize(ref);
     
     assertTrue(Common.array_equal(a, b));
@@ -75,11 +75,23 @@ public class ReferenceArray {
   
   @Test
   public void testGenericArray2() throws InstantiationException, IllegalArgumentException, IllegalAccessException {
-    Bean0[] a = new Bean0[r.nextInt(3) + 1];
+    Bean0[] a = new Bean0[r.nextInt(100) + 1];
     for (int i = 0; i < a.length; i++) a[i] = new Bean1().randomize();
     
     long ref = UnsafeSerializer.serialize(a, 2);
     Bean0[] b = (Bean0[]) UnsafeSerializer.deserialize(ref, false);
+    UnsafeSerializer.free(ref);
+    
+    assertTrue(Common.array_equal(a, b));
+  }
+  
+  @Test
+  public void testString() throws InstantiationException, IllegalArgumentException, IllegalAccessException {
+    String[] a = new String[r.nextInt(100) + 1];
+    for (int i = 0; i < a.length; i++) a[i] = Common.random(r.nextInt(50));
+    
+    long ref = UnsafeSerializer.serialize(a, 2);
+    String[] b = (String[]) UnsafeSerializer.deserialize(ref, false);
     UnsafeSerializer.free(ref);
     
     assertTrue(Common.array_equal(a, b));

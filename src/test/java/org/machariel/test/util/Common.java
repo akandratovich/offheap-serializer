@@ -2,6 +2,7 @@ package org.machariel.test.util;
 
 import java.lang.reflect.Field;
 import java.util.List;
+import java.util.Random;
 
 import org.machariel.core.util.Reflection;
 import org.machariel.core.util.U;
@@ -10,6 +11,11 @@ import sun.misc.Unsafe;
 
 public final class Common {
 	private Common() {}
+	
+	public static long time() { 
+	  // TODO how to get correct time ?
+	  return System.nanoTime();
+	}
 	
 	public static String hex(byte[] bytes) {
 		StringBuilder sb = new StringBuilder();
@@ -54,6 +60,14 @@ public final class Common {
     }
     
     return value;
+  }
+  
+  public static String random(int s) {
+    Random r = new Random(System.nanoTime());
+    StringBuilder sb = new StringBuilder();
+    for (int i = 0; i < s; i++) sb.append((char) r.nextInt(255));
+    
+    return sb.toString();
   }
   
   public static boolean array_equal(Object[] arg0, Object[] arg1) throws IllegalArgumentException, IllegalAccessException {

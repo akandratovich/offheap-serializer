@@ -17,6 +17,9 @@ public class ZeroDepth {
     Bean3 bean0 = new Bean3();
     
     bean0.randomize();
+    bean0._bean = null;
+    bean0.s = null;
+    
     long ref = UnsafeSerializer.serialize(bean0);
     Bean3 bean1 = (Bean3) UnsafeSerializer.deserialize(ref);
     

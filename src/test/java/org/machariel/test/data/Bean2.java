@@ -12,8 +12,7 @@ public class Bean2 extends Bean0 {
 	public char _char = 'c';			// 6	2
 	public boolean _boolean = true;	// 8	1
 	private float _float1 = 8;		// 4	4
-	public Bean0 _bean = null;
-	public Object o = new Object();
+	public String s = new String("qwerty");
 	
 	public Bean2 randomize() {
 	  Random r = new Random();

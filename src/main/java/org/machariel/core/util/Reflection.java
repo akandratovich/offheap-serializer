@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import ca.juliusdavies.nanotime.Clock;
+
 import sun.misc.Unsafe;
 
 public final class Reflection {
@@ -15,6 +17,16 @@ public final class Reflection {
   public static final int ADDRESS_SIZE = u.addressSize();
   public static final int OVERBOOK = ADDRESS_SIZE - Reflection.OOP_SIZE;
   public static final long MAGIC_SIZE = ADDRESS_SIZE + OOP_SIZE;
+  
+  static {
+    Clock.nativeTime();
+    System.out.println("Machariel is initialized.");
+    System.out.println("ADDRESS_SIZE: " + ADDRESS_SIZE + ";");
+    System.out.println("OOP_HEADER_SIZE: " + MAGIC_SIZE + ";");
+    if (OVERBOOK > 0) System.out.println("Overbooking detected: " + OVERBOOK + ";");
+    else System.out.println("No overbooking detected.");
+    System.out.println();
+  }
   
   /** The value of {@code arrayIndexScale(boolean[].class)} */
   public static final int ARRAY_BOOLEAN_INDEX_SCALE = u.arrayIndexScale(boolean[].class);
