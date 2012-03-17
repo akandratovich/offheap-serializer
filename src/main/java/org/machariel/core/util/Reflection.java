@@ -15,13 +15,6 @@ public final class Reflection {
   public static final int ADDRESS_SIZE = u.addressSize();
   public static final long MAGIC_SIZE = ADDRESS_SIZE + OOP_SIZE;
   
-  static {
-    System.out.println("Machariel is initialized.");
-    System.out.println("ADDRESS_SIZE: " + ADDRESS_SIZE + ";");
-    System.out.println("OOP_HEADER_SIZE: " + MAGIC_SIZE + ";");
-    System.out.println();
-  }
-  
   public static int indexScale(Class<?> type) {
     return u.arrayIndexScale(type);
   }

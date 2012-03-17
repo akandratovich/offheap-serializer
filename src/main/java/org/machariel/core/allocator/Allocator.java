@@ -7,7 +7,7 @@ import sun.misc.Unsafe;
 public abstract class Allocator implements IAllocator {
   private static final Unsafe UNSAFE = U.instance();
   public static final Allocator DIRECT = new DirectAllocator();
-  public static final Allocator CHECKED = null;
+  public static final Allocator CHECKED = new CheckedDirectAllocator();
   
   public static Object getObject(Object o, long offset) {
     return UNSAFE.getObject(o, offset);

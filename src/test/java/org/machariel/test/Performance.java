@@ -50,10 +50,10 @@ public class Performance {
     serialization(o, "data: Bean0");
   }
   
-  @Test
+//  @Test
   public void object_access() throws Exception {
-//    object_access(400, "field type: long (L1 cache)");
-//    object_access(1000, "field type: long (L2 cache)");
+    object_access(400, "field type: long (L1 cache)");
+    object_access(1000, "field type: long (L2 cache)");
     object_access(100000, "field type: long (off cached)");
   }
   

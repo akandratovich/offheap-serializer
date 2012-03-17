@@ -69,4 +69,10 @@ public class Key {
     
     U.instance().freeMemory(ptr);
   }
+  
+  public void check(long offset, long sz) {
+    if (offset < 0 || offset + sz > size) throw ex;
+  }
+  
+  private final RuntimeException ex = new AccessViolationException(pointer);
 }

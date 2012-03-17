@@ -2,7 +2,6 @@ package org.machariel.core.access;
 
 import org.machariel.core.allocator.Allocator;
 import org.machariel.core.allocator.Key;
-import org.machariel.core.serialization.DirectSerializer;
 import org.machariel.core.serialization.Serializer;
 import org.machariel.core.util.Reflection;
 
@@ -60,67 +59,67 @@ public class ArrayAccessor<A> {
     }
 	  
     public void put(Key ref, int index, int value) {
-      allocator.put(ref, DirectSerializer.PTR_OFFSET + index * Reflection.ARRAY_INT_INDEX_SCALE, value);
+      allocator.put(ref, Serializer.PTR_OFFSET + index * Reflection.ARRAY_INT_INDEX_SCALE, value);
     }
     
     public void put(Key ref, int index, short value) {
-      allocator.put(ref, DirectSerializer.PTR_OFFSET + index * Reflection.ARRAY_SHORT_INDEX_SCALE, value);
+      allocator.put(ref, Serializer.PTR_OFFSET + index * Reflection.ARRAY_SHORT_INDEX_SCALE, value);
     }
     
     public void put(Key ref, int index, long value) {
-      allocator.put(ref, DirectSerializer.PTR_OFFSET + index * Reflection.ARRAY_LONG_INDEX_SCALE, value);
+      allocator.put(ref, Serializer.PTR_OFFSET + index * Reflection.ARRAY_LONG_INDEX_SCALE, value);
     }
     
     public void put(Key ref, int index, char value) {
-      allocator.put(ref, DirectSerializer.PTR_OFFSET + index * Reflection.ARRAY_CHAR_INDEX_SCALE, value);
+      allocator.put(ref, Serializer.PTR_OFFSET + index * Reflection.ARRAY_CHAR_INDEX_SCALE, value);
     }
     
     public void put(Key ref, int index, byte value) {
-      allocator.put(ref, DirectSerializer.PTR_OFFSET + index * Reflection.ARRAY_BYTE_INDEX_SCALE, value);
+      allocator.put(ref, Serializer.PTR_OFFSET + index * Reflection.ARRAY_BYTE_INDEX_SCALE, value);
     }
     
     public void put(Key ref, int index, boolean value) {
-      allocator.put(ref, DirectSerializer.PTR_OFFSET + index * Reflection.ARRAY_BOOLEAN_INDEX_SCALE, (byte) (value ? 1 : 0));
+      allocator.put(ref, Serializer.PTR_OFFSET + index * Reflection.ARRAY_BOOLEAN_INDEX_SCALE, (byte) (value ? 1 : 0));
     }
     
     public void put(Key ref, int index, double value) {
-      allocator.put(ref, DirectSerializer.PTR_OFFSET + index * Reflection.ARRAY_DOUBLE_INDEX_SCALE, value);
+      allocator.put(ref, Serializer.PTR_OFFSET + index * Reflection.ARRAY_DOUBLE_INDEX_SCALE, value);
     }
     
     public void put(Key ref, int index, float value) {
-      allocator.put(ref, DirectSerializer.PTR_OFFSET + index * Reflection.ARRAY_FLOAT_INDEX_SCALE, value);
+      allocator.put(ref, Serializer.PTR_OFFSET + index * Reflection.ARRAY_FLOAT_INDEX_SCALE, value);
     }
     
     public int getInt(Key ref, int index) {
-      return allocator.getInt(ref, DirectSerializer.PTR_OFFSET + index * Reflection.ARRAY_INT_INDEX_SCALE);
+      return allocator.getInt(ref, Serializer.PTR_OFFSET + index * Reflection.ARRAY_INT_INDEX_SCALE);
     }
     
     public boolean getBoolean(Key ref, int index) {
-      return allocator.getByte(ref, DirectSerializer.PTR_OFFSET + index * Reflection.ARRAY_BOOLEAN_INDEX_SCALE) > 0;
+      return allocator.getByte(ref, Serializer.PTR_OFFSET + index * Reflection.ARRAY_BOOLEAN_INDEX_SCALE) > 0;
     }
     
     public byte getByte(Key ref, int index) {
-      return allocator.getByte(ref, DirectSerializer.PTR_OFFSET + index * Reflection.ARRAY_BYTE_INDEX_SCALE);
+      return allocator.getByte(ref, Serializer.PTR_OFFSET + index * Reflection.ARRAY_BYTE_INDEX_SCALE);
     }
     
     public char getChar(Key ref, int index) {
-      return allocator.getChar(ref, DirectSerializer.PTR_OFFSET + index * Reflection.ARRAY_CHAR_INDEX_SCALE);
+      return allocator.getChar(ref, Serializer.PTR_OFFSET + index * Reflection.ARRAY_CHAR_INDEX_SCALE);
     }
     
     public double getDouble(Key ref, int index) {
-      return allocator.getDouble(ref, DirectSerializer.PTR_OFFSET + index * Reflection.ARRAY_DOUBLE_INDEX_SCALE);
+      return allocator.getDouble(ref, Serializer.PTR_OFFSET + index * Reflection.ARRAY_DOUBLE_INDEX_SCALE);
     }
     
     public float getFloat(Key ref, int index) {
-      return allocator.getFloat(ref, DirectSerializer.PTR_OFFSET + index * Reflection.ARRAY_FLOAT_INDEX_SCALE);
+      return allocator.getFloat(ref, Serializer.PTR_OFFSET + index * Reflection.ARRAY_FLOAT_INDEX_SCALE);
     }
     
     public short getShort(Key ref, int index) {
-      return allocator.getShort(ref, DirectSerializer.PTR_OFFSET + index * Reflection.ARRAY_SHORT_INDEX_SCALE);
+      return allocator.getShort(ref, Serializer.PTR_OFFSET + index * Reflection.ARRAY_SHORT_INDEX_SCALE);
     }
     
     public long getLong(Key ref, int index) {
-      return allocator.getLong(ref, DirectSerializer.PTR_OFFSET + index * Reflection.ARRAY_LONG_INDEX_SCALE);
+      return allocator.getLong(ref, Serializer.PTR_OFFSET + index * Reflection.ARRAY_LONG_INDEX_SCALE);
     }
 	}
 }

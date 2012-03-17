@@ -4,12 +4,12 @@ import org.machariel.core.ClassBucket;
 import org.machariel.core.ClassMap;
 import org.machariel.core.allocator.Allocator;
 import org.machariel.core.allocator.Key;
-import org.machariel.core.serialization.DirectSerializer;
+import org.machariel.core.serialization.Serializer;
 import org.machariel.core.util.Reflection;
 
 
 public class ObjectAccessor<A> {
-  private static final long PTR_DELTA = Reflection.MAGIC_SIZE - DirectSerializer.PTR_OFFSET;
+  private static final long PTR_DELTA = Reflection.MAGIC_SIZE - Serializer.PTR_OFFSET;
 	private final ClassMap map;
 	private final Allocator allocator;
 	
