@@ -2,219 +2,230 @@ package org.machariel.core.access;
 
 import org.machariel.core.ClassBucket;
 import org.machariel.core.ClassMap;
-import org.machariel.core.serialization.UnsafeSerializer;
+import org.machariel.core.allocator.Allocator;
+import org.machariel.core.allocator.Key;
+import org.machariel.core.serialization.DirectSerializer;
 import org.machariel.core.util.Reflection;
-import org.machariel.core.util.U;
-
-import sun.misc.Unsafe;
 
 
 public class ObjectAccessor<A> {
-  private static final long PTR_DELTA = Reflection.MAGIC_SIZE - UnsafeSerializer.PTR_OFFSET;
+  private static final long PTR_DELTA = Reflection.MAGIC_SIZE - DirectSerializer.PTR_OFFSET;
 	private final ClassMap map;
+	private final Allocator allocator;
+	
+	public ObjectAccessor(A obj) {
+	  this(obj, true);
+	}
 	
 	@SuppressWarnings("unchecked")
-  public ObjectAccessor(A obj) {
-	  this((Class<A>) obj.getClass());
+  public ObjectAccessor(A obj, boolean checked) {
+	  this((Class<A>) obj.getClass(), checked);
 	}
 	
 	public ObjectAccessor(Class<A> cl) {
+	  this(cl, true);
+	}
+	
+	public ObjectAccessor(Class<A> cl, boolean checked) {
 	  if (cl.isArray()) throw new IllegalArgumentException();
 	  if (cl.isPrimitive()) throw new IllegalArgumentException();
 		map = ClassBucket.acquireMap(cl);
+		allocator = checked ? Allocator.CHECKED : Allocator.DIRECT;
 	}
 	
 	public ClassMap getClassMap() {
 	  return map;
 	}
 	
-	public long getReference(long ref, String field) throws NoSuchFieldException {
+	public Key getMember(Key ref, String field) throws NoSuchFieldException {
     int i = map.index(field);
-    return getReference(ref, i);
+    return getMember(ref, i);
 	}
 	
-	public boolean getBoolean(long ref, String field) throws NoSuchFieldException {
+	public boolean getBoolean(Key ref, String field) throws NoSuchFieldException {
     int i = map.index(field);
     return getBoolean(ref, i);
 	}
 	
-	public char getChar(long ref, String field) throws NoSuchFieldException {
+	public char getChar(Key ref, String field) throws NoSuchFieldException {
 	  int i = map.index(field);
 	  return getChar(ref, i);
 	}
 	
-	public byte getByte(long ref, String field) throws NoSuchFieldException {
+	public byte getByte(Key ref, String field) throws NoSuchFieldException {
 	   int i = map.index(field);
      return getByte(ref, i);
 	}
 	
-	private byte getByte0(long ref) throws NoSuchFieldException {
-	  return u.getByte(ref);
+	private byte getByte0(Key ref, long offset) {
+	  return allocator.getByte(ref, offset);
 	}
 	
-	public short getShort(long ref, String field) throws NoSuchFieldException {
+	public short getShort(Key ref, String field) throws NoSuchFieldException {
     int i = map.index(field);
     return getShort(ref, i);
 	}
 	
-	public int getInt(long ref, String field) throws NoSuchFieldException {
+	public int getInt(Key ref, String field) throws NoSuchFieldException {
     int i = map.index(field);
     return getInt(ref, i);
 	}
 	
-	public long getLong(long ref, String field) throws NoSuchFieldException {
+	public long getLong(Key ref, String field) throws NoSuchFieldException {
     int i = map.index(field);
     return getLong(ref, i);
 	}
 	
-	public float getFloat(long ref, String field) throws NoSuchFieldException {
+	public float getFloat(Key ref, String field) throws NoSuchFieldException {
     int i = map.index(field);
     return getFloat(ref, i);
 	}
 	
-	public double getDouble(long ref, String field) throws NoSuchFieldException {
+	public double getDouble(Key ref, String field) throws NoSuchFieldException {
     int i = map.index(field);
     return getDouble(ref, i);
 	}
 	
-  public void putReference(long ref, String field, long value) throws NoSuchFieldException {
+  public void putMember(Key ref, String field, Key value) throws NoSuchFieldException {
     int i = map.index(field);
-    putReference(ref, i, value);
+    putMember(ref, i, value);
   }
 	
-  public void putBoolean(long ref, String field, boolean value) throws NoSuchFieldException {
+  public void putBoolean(Key ref, String field, boolean value) throws NoSuchFieldException {
     int i = map.index(field);
     putBoolean(ref, i, value);
   }
 	
-	public void putChar(long ref, String field, char value) throws NoSuchFieldException {
+	public void putChar(Key ref, String field, char value) throws NoSuchFieldException {
 	  int i = map.index(field);
 	  putChar(ref, i, value);
 	}
 	
-	public void putByte(long ref, String field, byte value) throws NoSuchFieldException {
+	public void putByte(Key ref, String field, byte value) throws NoSuchFieldException {
 	  int i = map.index(field);
-	  putByte0(ref + map.offset(i) - PTR_DELTA, value);
+	  putByte0(ref, map.offset(i) - PTR_DELTA, value);
 	}
 	
-	private void putByte0(long ref, byte value) throws NoSuchFieldException {
-	  u.putByte(ref, value);
+	private void putByte0(Key ref, long offset, byte value) {
+	  allocator.put(ref, offset, value);
 	}
 	
-	public void putShort(long ref, String field, short value) throws NoSuchFieldException {
+	public void putShort(Key ref, String field, short value) throws NoSuchFieldException {
 	  int i = map.index(field);
 	  putShort(ref, i, value);
 	}
 	
-	public void putInt(long ref, String field, int value) throws NoSuchFieldException {
+	public void putInt(Key ref, String field, int value) throws NoSuchFieldException {
 	  int i = map.index(field);
 	  putInt(ref, i, value);
 	}
 	
-	public void putLong(long ref, String field, long value) throws NoSuchFieldException {
+	public void putLong(Key ref, String field, long value) throws NoSuchFieldException {
 	  int i = map.index(field);
 	  putLong(ref, i, value);
 	}
 	
-	public void putFloat(long ref, String field, float value) throws NoSuchFieldException {
+	public void putFloat(Key ref, String field, float value) throws NoSuchFieldException {
 	  int i = map.index(field);
 	  putFloat(ref, i, value);
 	}
 	
-	public void putDouble(long ref, String field, double value) throws NoSuchFieldException {
+	public void putDouble(Key ref, String field, double value) throws NoSuchFieldException {
 	  int i = map.index(field);
 	  putDouble(ref, i, value);
 	}
 	
-	public long getReference(long ref, int i) throws NoSuchFieldException {
+	public Key getMember(Key ref, int i) {
 	  map.assertReference(i);
-	  return u.getAddress(ref + map.offset(i) - PTR_DELTA);
+	  for (int j = 0; j < map.refs().length; j++) if (i == map.refs()[j]) return ref.member(i);
+	  return null;
 	}
 	
-	public boolean getBoolean(long ref, int i) throws NoSuchFieldException {
+	public boolean getBoolean(Key ref, int i) {
 	  map.assertType(i, boolean.class);
-	  return getByte0(ref + map.offset(i) - PTR_DELTA) > 0;
+	  return getByte0(ref, map.offset(i) - PTR_DELTA) > 0;
 	}
 	
-	public char getChar(long ref, int i) throws NoSuchFieldException {
+	public char getChar(Key ref, int i) {
 	  map.assertType(i, char.class);
-	  return u.getChar(ref + map.offset(i) - PTR_DELTA);
+	  return allocator.getChar(ref, map.offset(i) - PTR_DELTA);
 	}
 	
-	public byte getByte(long ref, int i) throws NoSuchFieldException {
+	public byte getByte(Key ref, int i) {
 	  map.assertType(i, byte.class);
-	  return getByte0(ref + map.offset(i) - PTR_DELTA);
+	  return getByte0(ref, map.offset(i) - PTR_DELTA);
 	}
 	
-	public short getShort(long ref, int i) throws NoSuchFieldException {
+	public short getShort(Key ref, int i) throws NoSuchFieldException {
 	  map.assertType(i, short.class);
-	  return u.getShort(ref + map.offset(i) - PTR_DELTA);
+	  return allocator.getShort(ref, map.offset(i) - PTR_DELTA);
 	}
 	
-	public int getInt(long ref, int i) throws NoSuchFieldException {
+	public int getInt(Key ref, int i) throws NoSuchFieldException {
 	  map.assertType(i, int.class);
-	  return u.getInt(ref + map.offset(i) - PTR_DELTA);
+	  return allocator.getInt(ref, map.offset(i) - PTR_DELTA);
 	}
 	
-	public long getLong(long ref, int i) throws NoSuchFieldException {
+	public long getLong(Key ref, int i) throws NoSuchFieldException {
 	  map.assertType(i, long.class);
-	  return u.getLong(ref + map.offset(i) - PTR_DELTA);
+	  return allocator.getLong(ref, map.offset(i) - PTR_DELTA);
 	}
 	
-	public float getFloat(long ref, int i) throws NoSuchFieldException {
+	public float getFloat(Key ref, int i) throws NoSuchFieldException {
 	  map.assertType(i, float.class);
-	  return u.getFloat(ref + map.offset(i) - PTR_DELTA);
+	  return allocator.getFloat(ref, map.offset(i) - PTR_DELTA);
 	}
 	
-	public double getDouble(long ref, int i) throws NoSuchFieldException {
+	public double getDouble(Key ref, int i) throws NoSuchFieldException {
 	  map.assertType(i, double.class);
-	  return u.getDouble(ref + map.offset(i) - PTR_DELTA);
+	  return allocator.getDouble(ref, map.offset(i) - PTR_DELTA);
 	}
 	
-	public void putReference(long ref, int i, long value) throws NoSuchFieldException {
+	public void putMember(Key ref, int i, Key value) throws NoSuchFieldException {
 	  map.assertReference(i);
-	  u.putAddress(ref + map.offset(i) - PTR_DELTA, value);
+	  for (int j = 0; j < map.refs().length; j++) if (i == map.refs()[j]) {
+	    ref.member(i, value);
+	    return;
+	  }
 	}
 	
-	public void putBoolean(long ref, int i, boolean value) throws NoSuchFieldException {
+	public void putBoolean(Key ref, int i, boolean value) throws NoSuchFieldException {
 	  map.assertType(i, boolean.class);
-	  putByte0(ref + map.offset(i) - PTR_DELTA, (byte) (value ? 1 : 0));
+	  putByte0(ref, map.offset(i) - PTR_DELTA, (byte) (value ? 1 : 0));
 	}
 	
-	public void putChar(long ref, int i, char value) throws NoSuchFieldException {
+	public void putChar(Key ref, int i, char value) throws NoSuchFieldException {
 	  map.assertType(i, char.class);
-	  u.putChar(ref + map.offset(i) - PTR_DELTA, value);
+	  allocator.put(ref, map.offset(i) - PTR_DELTA, value);
 	}
 	
-	public void putByte(long ref, int i, byte value) throws NoSuchFieldException {
+	public void putByte(Key ref, int i, byte value) throws NoSuchFieldException {
 	  map.assertType(i, byte.class);
-	  putByte0(ref + map.offset(i) - PTR_DELTA, value);
+	  putByte0(ref, map.offset(i) - PTR_DELTA, value);
 	}
 	
-	public void putShort(long ref, int i, short value) throws NoSuchFieldException {
+	public void putShort(Key ref, int i, short value) throws NoSuchFieldException {
 	  map.assertType(i, short.class);
-	  u.putShort(ref + map.offset(i) - PTR_DELTA, value);
+	  allocator.put(ref, map.offset(i) - PTR_DELTA, value);
 	}
 	
-	public void putInt(long ref, int i, int value) throws NoSuchFieldException {
+	public void putInt(Key ref, int i, int value) throws NoSuchFieldException {
 	  map.assertType(i, int.class);
-	  u.putInt(ref + map.offset(i) - PTR_DELTA, value);
+	  allocator.put(ref, map.offset(i) - PTR_DELTA, value);
 	}
 	
-	public void putLong(long ref, int i, long value) throws NoSuchFieldException {
+	public void putLong(Key ref, int i, long value) throws NoSuchFieldException {
 	  map.assertType(i, long.class);
-	  u.putLong(ref + map.offset(i) - PTR_DELTA, value);
+	  allocator.put(ref, map.offset(i) - PTR_DELTA, value);
 	}
 	
-	public void putFloat(long ref, int i, float value) throws NoSuchFieldException {
+	public void putFloat(Key ref, int i, float value) throws NoSuchFieldException {
 	  map.assertType(i, float.class);
-	  u.putFloat(ref + map.offset(i) - PTR_DELTA, value);
+	  allocator.put(ref, map.offset(i) - PTR_DELTA, value);
 	}
 	
-	public void putDouble(long ref, int i, double value) throws NoSuchFieldException {
+	public void putDouble(Key ref, int i, double value) throws NoSuchFieldException {
 	  map.assertType(i, double.class);
-	  u.putDouble(ref + map.offset(i) - PTR_DELTA, value);
+	  allocator.put(ref, map.offset(i) - PTR_DELTA, value);
 	}
-	
-	private static final Unsafe u = U.instance();
 }

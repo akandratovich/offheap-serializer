@@ -7,7 +7,8 @@ import java.util.Random;
 
 import org.junit.Test;
 import org.machariel.core.access.ObjectAccessor;
-import org.machariel.core.serialization.UnsafeSerializer;
+import org.machariel.core.allocator.Key;
+import org.machariel.core.serialization.Serializer;
 import org.machariel.test.data.Bean0;
 import org.machariel.test.data.Bean1;
 import org.machariel.test.util.Common;
@@ -20,29 +21,33 @@ public class Reference {
     Bean0 bean0 = new Bean1();
     
     bean0.randomize();
-    long ref = UnsafeSerializer.serialize(bean0, 2);
-    Bean0 bean1 = (Bean0) UnsafeSerializer.deserialize(ref);
+    Key ref = Serializer.DIRECT.serialize(bean0, 2);
+    Bean0 bean1 = (Bean0) Serializer.DIRECT.deserialize(ref);
     
     assertTrue(Common.equal(bean0, bean1));
+    
+    ref.free();
   }
   
   @Test
   public void test() throws InstantiationException, IllegalArgumentException, IllegalAccessException {
     Bean1 bean0 = new Bean1();
     bean0.randomize();
-    long ref = UnsafeSerializer.serialize(bean0, 2);
-    Bean1 bean1 = (Bean1) UnsafeSerializer.deserialize(ref);
+    Key ref = Serializer.DIRECT.serialize(bean0, 2);
+    Bean1 bean1 = (Bean1) Serializer.DIRECT.deserialize(ref);
     
     assertTrue(Common.equal(bean0, bean1));
+    
+    ref.free();
   }
   
   @Test
   public void test2() throws InstantiationException, IllegalArgumentException, IllegalAccessException, NoSuchFieldException {
     Bean1 bean0 = new Bean1();
     bean0.randomize();
-    long ref = UnsafeSerializer.serialize(bean0, 2);
+    Key ref = Serializer.DIRECT.serialize(bean0, 2);
     
-    ObjectAccessor<Bean1> oa = new ObjectAccessor<Bean1>(bean0);
+    ObjectAccessor<Bean1> oa = new ObjectAccessor<Bean1>(bean0, false);
     
     for (int i = 0; i < 10; i++) {
       assertEquals(oa.getBoolean(ref, "_boolean"), bean0._boolean);
@@ -90,14 +95,16 @@ public class Reference {
     }
     
     for (int i = 0; i < 10; i++) {
-      long vref = oa.getReference(ref, "_bean0");
-      Bean0 value1 = (Bean0) UnsafeSerializer.deserialize(vref, false);
+      Key vref = oa.getMember(ref, "_bean0");
+      Bean0 value1 = (Bean0) Serializer.DIRECT.deserialize(vref);
       assertTrue(Common.equal(bean0._bean0, value1));
     }
     
-    Bean1 bean1 = (Bean1) UnsafeSerializer.deserialize(ref);
+    Bean1 bean1 = (Bean1) Serializer.DIRECT.deserialize(ref);
     
     assertTrue(Common.equal(bean0, bean1));
+    
+    ref.free();
   }
   
   @SuppressWarnings("unchecked")
@@ -106,13 +113,11 @@ public class Reference {
     ArrayList<Integer> col0 = new ArrayList<Integer>();
     for (int i = 0; i < r.nextInt(10); i++) col0.add(r.nextInt());
     
-    long ref = UnsafeSerializer.serialize(col0, 4);
-    ArrayList<Integer> col1 = (ArrayList<Integer>) UnsafeSerializer.deserialize(ref);
-    
-//    for (int i = 0; i < col0.size(); i++) {
-//      System.out.println(col0.get(i) + " " + col1.get(i));
-//    }
+    Key ref = Serializer.DIRECT.serialize(col0, 4);
+    ArrayList<Integer> col1 = (ArrayList<Integer>) Serializer.DIRECT.deserialize(ref);
     
     assertTrue(Common.array_equal(col0.toArray(), col1.toArray()));
+    
+    ref.free();
   }
 }

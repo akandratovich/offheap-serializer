@@ -17,8 +17,6 @@ public final class ClassMap {
   private final Field[] field;
   private final int[] reference;
   private final int[] primitive;
-  private final int[] delta;
-  private final int overbook;
   private final int length;
   
   protected ClassMap(Class<?> t) {
@@ -35,7 +33,6 @@ public final class ClassMap {
     
     name = new String[length];
     offset = new long[length];
-    delta = new int[length];
     field = new Field[length];
     
     for (int i = 0; i < length; i++) name[i] = Reflection.name0(fs[i], t);
@@ -58,25 +55,6 @@ public final class ClassMap {
     reference = new int[j];
     System.arraycopy(_primitive, 0, primitive, 0, primitive.length);
     System.arraycopy(_reference, 0, reference, 0, reference.length);
-    
-    int _overbook = 0;
-    if (Reflection.OOP_SIZE != Reflection.ADDRESS_SIZE)
-      for (int i : reference)
-        for (int q = 0; q < length; q++)
-          if (offset[q] > offset[i]) {
-            delta[q] = delta[q] + Reflection.ADDRESS_SIZE - Reflection.OOP_SIZE;
-            _overbook += Reflection.ADDRESS_SIZE - Reflection.OOP_SIZE;
-          }
-    
-    overbook = _overbook;
-  }
-  
-  public int delta(int i) {
-    return delta[i];
-  }
-  
-  public int overbook() {
-    return overbook;
   }
   
   public Class<?> type() {

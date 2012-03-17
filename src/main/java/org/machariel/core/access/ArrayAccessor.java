@@ -1,124 +1,126 @@
 package org.machariel.core.access;
 
-import org.machariel.core.serialization.UnsafeSerializer;
+import org.machariel.core.allocator.Allocator;
+import org.machariel.core.allocator.Key;
+import org.machariel.core.serialization.DirectSerializer;
+import org.machariel.core.serialization.Serializer;
 import org.machariel.core.util.Reflection;
-import org.machariel.core.util.U;
-
-import sun.misc.Unsafe;
 
 
 public class ArrayAccessor<A> {
-  private final int scale;
 	private final ObjectAccessor<A> sm;
+	private final Serializer serializer;
 	
 	public ObjectAccessor<A> getMemberAccessor() {
 	  return sm;
 	}
 	
-  public static <A> ArrayAccessor<A> acquire(Class<A[]> array) {
-	  return new ArrayAccessor<A>(array);
-	}
+  public ArrayAccessor(Class<A[]> array) {
+    this(array, true);
+  }
   
   @SuppressWarnings("unchecked")
-  public static <A> ArrayAccessor<A> acquire(A[] obj) {
-    return acquire((Class<A[]>) obj.getClass());
-  }
-	
-  @SuppressWarnings("unchecked")
-  private ArrayAccessor(Class<A[]> array) {
+  public ArrayAccessor(Class<A[]> array, boolean checked) {
     Class<A> cl = (Class<A>) array.getComponentType();
     if (cl.isPrimitive()) throw new IllegalArgumentException();
-	  
-	  scale = u.arrayIndexScale(array) + Reflection.OVERBOOK;
-		sm = new ObjectAccessor<A>((Class<A>) array.getComponentType());
+    
+		sm = new ObjectAccessor<A>((Class<A>) array.getComponentType(), checked);
+		serializer = checked ? Serializer.CHECKED : Serializer.DIRECT;
 	}
 	
-  public long getReference(long ref, int index) {
-    return u.getAddress(ref + UnsafeSerializer.PTR_OFFSET + index * scale);
+  public Key getMember(Key ref, int index) {
+    return ref.member(index);
   }
   
-  public void putReference(long ref, int index, long value) {
-    u.putAddress(ref + UnsafeSerializer.PTR_OFFSET + index * scale, value);
+  public void putReference(Key ref, int index, Key value) {
+    ref.member(index, value);
   }
   
   @SuppressWarnings("unchecked")
-  public A get(long ref, int index) throws InstantiationException {
-    return (A) UnsafeSerializer.deserialize(u.getAddress(ref + UnsafeSerializer.PTR_OFFSET + index * scale), false);
+  public A get(Key ref, int index) throws InstantiationException {
+    return (A) serializer.deserialize(ref.member(index));
   }
   
-  public void put(long ref, int index, A value) {
+  public void put(Key ref, int index, A value) {
     put(ref, index, value, 0);
   }
   
-  public void put(long ref, int index, A value, int deep) {
-    u.putAddress(ref + UnsafeSerializer.PTR_OFFSET + index * scale, UnsafeSerializer.serialize(value, deep));
+  public void put(Key ref, int index, A value, int deep) {
+    ref.member(index, serializer.serialize(value, deep));
   }
   
 	public static class Raw {
-    public static void put(long ref, int index, int value) {
-      u.putInt(ref + UnsafeSerializer.PTR_OFFSET + index * Reflection.ARRAY_INT_INDEX_SCALE, value);
+	  public static final Raw CHECKED = new Raw(true);
+	  public static final Raw DIRECT = new Raw(false);
+	  
+	  private final Allocator allocator;
+	  
+	  private Raw(boolean checked) {
+	    allocator = checked ? Allocator.CHECKED : Allocator.DIRECT;
+    }
+	  
+    public void put(Key ref, int index, int value) {
+      allocator.put(ref, DirectSerializer.PTR_OFFSET + index * Reflection.ARRAY_INT_INDEX_SCALE, value);
     }
     
-    public static void put(long ref, int index, short value) {
-      u.putShort(ref + UnsafeSerializer.PTR_OFFSET + index * Reflection.ARRAY_SHORT_INDEX_SCALE, value);
+    public void put(Key ref, int index, short value) {
+      allocator.put(ref, DirectSerializer.PTR_OFFSET + index * Reflection.ARRAY_SHORT_INDEX_SCALE, value);
     }
     
-    public static void put(long ref, int index, long value) {
-      u.putLong(ref + UnsafeSerializer.PTR_OFFSET + index * Reflection.ARRAY_LONG_INDEX_SCALE, value);
+    public void put(Key ref, int index, long value) {
+      allocator.put(ref, DirectSerializer.PTR_OFFSET + index * Reflection.ARRAY_LONG_INDEX_SCALE, value);
     }
     
-    public static void put(long ref, int index, char value) {
-      u.putChar(ref + UnsafeSerializer.PTR_OFFSET + index * Reflection.ARRAY_CHAR_INDEX_SCALE, value);
+    public void put(Key ref, int index, char value) {
+      allocator.put(ref, DirectSerializer.PTR_OFFSET + index * Reflection.ARRAY_CHAR_INDEX_SCALE, value);
     }
     
-    public static void put(long ref, int index, byte value) {
-      u.putByte(ref + UnsafeSerializer.PTR_OFFSET + index * Reflection.ARRAY_BYTE_INDEX_SCALE, value);
+    public void put(Key ref, int index, byte value) {
+      allocator.put(ref, DirectSerializer.PTR_OFFSET + index * Reflection.ARRAY_BYTE_INDEX_SCALE, value);
     }
     
-    public static void put(long ref, int index, boolean value) {
-      u.putByte(ref + UnsafeSerializer.PTR_OFFSET + index * Reflection.ARRAY_BOOLEAN_INDEX_SCALE, (byte) (value ? 1 : 0));
+    public void put(Key ref, int index, boolean value) {
+      allocator.put(ref, DirectSerializer.PTR_OFFSET + index * Reflection.ARRAY_BOOLEAN_INDEX_SCALE, (byte) (value ? 1 : 0));
     }
     
-    public static void put(long ref, int index, double value) {
-      u.putDouble(ref + UnsafeSerializer.PTR_OFFSET + index * Reflection.ARRAY_DOUBLE_INDEX_SCALE, value);
+    public void put(Key ref, int index, double value) {
+      allocator.put(ref, DirectSerializer.PTR_OFFSET + index * Reflection.ARRAY_DOUBLE_INDEX_SCALE, value);
     }
     
-    public static void put(long ref, int index, float value) {
-      u.putFloat(ref + UnsafeSerializer.PTR_OFFSET + index * Reflection.ARRAY_FLOAT_INDEX_SCALE, value);
+    public void put(Key ref, int index, float value) {
+      allocator.put(ref, DirectSerializer.PTR_OFFSET + index * Reflection.ARRAY_FLOAT_INDEX_SCALE, value);
     }
     
-    public static int getInt(long ref, int index) {
-      return u.getInt(ref + UnsafeSerializer.PTR_OFFSET + index * Reflection.ARRAY_INT_INDEX_SCALE);
+    public int getInt(Key ref, int index) {
+      return allocator.getInt(ref, DirectSerializer.PTR_OFFSET + index * Reflection.ARRAY_INT_INDEX_SCALE);
     }
     
-    public static boolean getBoolean(long ref, int index) {
-      return u.getByte(ref + UnsafeSerializer.PTR_OFFSET + index * Reflection.ARRAY_BOOLEAN_INDEX_SCALE) > 0;
+    public boolean getBoolean(Key ref, int index) {
+      return allocator.getByte(ref, DirectSerializer.PTR_OFFSET + index * Reflection.ARRAY_BOOLEAN_INDEX_SCALE) > 0;
     }
     
-    public static byte getByte(long ref, int index) {
-      return u.getByte(ref + UnsafeSerializer.PTR_OFFSET + index * Reflection.ARRAY_BYTE_INDEX_SCALE);
+    public byte getByte(Key ref, int index) {
+      return allocator.getByte(ref, DirectSerializer.PTR_OFFSET + index * Reflection.ARRAY_BYTE_INDEX_SCALE);
     }
     
-    public static char getChar(long ref, int index) {
-      return u.getChar(ref + UnsafeSerializer.PTR_OFFSET + index * Reflection.ARRAY_CHAR_INDEX_SCALE);
+    public char getChar(Key ref, int index) {
+      return allocator.getChar(ref, DirectSerializer.PTR_OFFSET + index * Reflection.ARRAY_CHAR_INDEX_SCALE);
     }
     
-    public static double getDouble(long ref, int index) {
-      return u.getDouble(ref + UnsafeSerializer.PTR_OFFSET + index * Reflection.ARRAY_DOUBLE_INDEX_SCALE);
+    public double getDouble(Key ref, int index) {
+      return allocator.getDouble(ref, DirectSerializer.PTR_OFFSET + index * Reflection.ARRAY_DOUBLE_INDEX_SCALE);
     }
     
-    public static float getFloat(long ref, int index) {
-      return u.getFloat(ref + UnsafeSerializer.PTR_OFFSET + index * Reflection.ARRAY_FLOAT_INDEX_SCALE);
+    public float getFloat(Key ref, int index) {
+      return allocator.getFloat(ref, DirectSerializer.PTR_OFFSET + index * Reflection.ARRAY_FLOAT_INDEX_SCALE);
     }
     
-    public static short getShort(long ref, int index) {
-      return u.getShort(ref + UnsafeSerializer.PTR_OFFSET + index * Reflection.ARRAY_SHORT_INDEX_SCALE);
+    public short getShort(Key ref, int index) {
+      return allocator.getShort(ref, DirectSerializer.PTR_OFFSET + index * Reflection.ARRAY_SHORT_INDEX_SCALE);
     }
     
-    public static long getLong(long ref, int index) {
-      return u.getLong(ref + UnsafeSerializer.PTR_OFFSET + index * Reflection.ARRAY_LONG_INDEX_SCALE);
+    public long getLong(Key ref, int index) {
+      return allocator.getLong(ref, DirectSerializer.PTR_OFFSET + index * Reflection.ARRAY_LONG_INDEX_SCALE);
     }
 	}
-	
-	private static final Unsafe u = U.instance();
 }

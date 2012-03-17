@@ -13,16 +13,21 @@ public final class Reflection {
   private static final Unsafe u = U.instance();
   public static final int OOP_SIZE = u.arrayIndexScale(Object[].class);
   public static final int ADDRESS_SIZE = u.addressSize();
-  public static final int OVERBOOK = ADDRESS_SIZE - Reflection.OOP_SIZE;
   public static final long MAGIC_SIZE = ADDRESS_SIZE + OOP_SIZE;
   
   static {
     System.out.println("Machariel is initialized.");
     System.out.println("ADDRESS_SIZE: " + ADDRESS_SIZE + ";");
     System.out.println("OOP_HEADER_SIZE: " + MAGIC_SIZE + ";");
-    if (OVERBOOK > 0) System.out.println("Overbooking detected: " + OVERBOOK + ";");
-    else System.out.println("No overbooking detected.");
     System.out.println();
+  }
+  
+  public static int indexScale(Class<?> type) {
+    return u.arrayIndexScale(type);
+  }
+  
+  public static int baseOffset(Class<?> type) {
+    return u.arrayBaseOffset(type);
   }
   
   /** The value of {@code arrayIndexScale(boolean[].class)} */
@@ -57,6 +62,10 @@ public final class Reflection {
 	public static int size(Object o) {
 	  if (o.getClass().isPrimitive()) return SCALE.get(o.getClass());
 	  return u.getInt(normalize(getOopAddress(o, (long) ADDRESS_SIZE)) + 3 * ADDRESS_SIZE);
+	}
+	
+	public static int arraySize(Object o) {
+	  return u.getInt(o, Reflection.MAGIC_SIZE);
 	}
 	
   public static long normalize(long value) {

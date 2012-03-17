@@ -2,7 +2,6 @@ package org.machariel.test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
@@ -13,7 +12,8 @@ import java.util.Random;
 import org.junit.Test;
 import org.machariel.core.ClassMap;
 import org.machariel.core.access.ObjectAccessor;
-import org.machariel.core.serialization.UnsafeSerializer;
+import org.machariel.core.allocator.Key;
+import org.machariel.core.serialization.Serializer;
 import org.machariel.test.data.Bean0;
 import org.machariel.test.data.Bean3;
 import org.machariel.test.data.Bean4;
@@ -52,8 +52,8 @@ public class Performance {
   
   @Test
   public void object_access() throws Exception {
-    object_access(400, "field type: long (L1 cache)");
-    object_access(1000, "field type: long (L2 cache)");
+//    object_access(400, "field type: long (L1 cache)");
+//    object_access(1000, "field type: long (L2 cache)");
     object_access(100000, "field type: long (off cached)");
   }
   
@@ -61,11 +61,11 @@ public class Performance {
     Bean4 o[] = new Bean4[count];
     for (int i = 0; i < o.length; i++) o[i] = new Bean4();
     
-    ObjectAccessor<Bean4> oa = new ObjectAccessor<Bean4>(Bean4.class);
+    ObjectAccessor<Bean4> oa = new ObjectAccessor<Bean4>(Bean4.class, false);
     ClassMap cm = oa.getClassMap();
     
-    long ref[] = new long[count];
-    for (int i = 0; i < ref.length; i++) ref[i] = UnsafeSerializer.serialize(o[i], 5);
+    Key ref[] = new Key[count];
+    for (int i = 0; i < ref.length; i++) ref[i] = Serializer.DIRECT.serialize(o[i], 5);
     
     int warm = 10 * 1000 + count;
     int run = 2000;
@@ -155,7 +155,7 @@ public class Performance {
     
     System.out.println();
     
-    for (int i = 0; i < ref.length; i++) UnsafeSerializer.free(ref[i]);
+    for (int i = 0; i < ref.length; i++) ref[i].free();
   }
   
   private static void serialization(Object o, String message) throws Exception {
@@ -208,22 +208,24 @@ public class Performance {
     System.out.println();
   }
   
-  public static void perf_unsafe(Object o0, boolean show, int run, long[] serialize, long[] deserialize) throws IOException, InstantiationException, ClassNotFoundException, IllegalArgumentException, IllegalAccessException {
+  public static void perf_unsafe(Object o0, boolean show, int run, long[] serialize, long[] deserialize) throws Exception {
     long us0 = System.nanoTime();
-    long ref = UnsafeSerializer.serialize(o0, 5);
+    Key ref = Serializer.DIRECT.serialize(o0, 5);
     long us1 = System.nanoTime();
     
     long ud0 = System.nanoTime();
-    UnsafeSerializer.deserialize(ref);
+    Serializer.DIRECT.deserialize(ref);
     long ud1 = System.nanoTime();
     
     if (show) {
       serialize[run]       = (us1 - us0);
       deserialize[run]     = (ud1 - ud0);
     }
+    
+    ref.free();
   }
   
-  public static void perf_java(Object o0, boolean show, int run, long[] serialize, long[] deserialize) throws IOException, InstantiationException, ClassNotFoundException, IllegalArgumentException, IllegalAccessException {
+  public static void perf_java(Object o0, boolean show, int run, long[] serialize, long[] deserialize) throws Exception {
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     ObjectOutputStream oos = new ObjectOutputStream(baos);
     
