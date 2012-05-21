@@ -15,11 +15,11 @@ public class DirectAllocator extends Allocator {
   }
   
   public Key allocate(long size, int len, boolean array) {
-    return new Key(UNSAFE.allocateMemory(size), size, len, array);
+    return new Key(UNSAFE.allocateMemory(size), size, len);
   }
   
   public Key allocate(ClassMap cm, long size) {
-    return new Key(UNSAFE.allocateMemory(size), size, cm.refs().length, false, cm.type().hashCode());
+    return new Key(UNSAFE.allocateMemory(size), size, cm.refs().length);
   }
   
   public void copy(Object o, long offset0, Key ref, long offset1, long size) {

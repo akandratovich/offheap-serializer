@@ -1,28 +1,18 @@
 package org.machariel.core.allocator;
 
+import org.machariel.core.ClassBucket;
+import org.machariel.core.util.Reflection;
 import org.machariel.core.util.U;
 
 public class Key {
   private final Key[] out;
   private long pointer;
   private final long size;
-  private final boolean array;
-  private final int klass;
   
-  public Key(long ptr, long sz, int ref, boolean arr, int kl) {
+  public Key(long ptr, long sz, int ref) {
     pointer = ptr;
     size = sz;
     out = new Key[ref];
-    array = arr;
-    klass = kl;
-  }
-  
-  public Key(long ptr, long sz, int ref, boolean arr) {
-    this(ptr, sz, ref, arr, 0);
-  }
-  
-  public Key(long ptr, long sz, int ref) {
-    this(ptr, sz, ref, false);
   }
   
   public long size() {
@@ -45,12 +35,13 @@ public class Key {
     out[i] = key;
   }
 
-  public int klass() {
-    return klass;
+  public int klass(Allocator allocator) {
+    return allocator.getInt(this, Reflection.ARRAY_INT_INDEX_SCALE);
   }
   
-  public boolean array() {
-    return array;
+  public boolean array(Allocator allocator) {
+    int klass = klass(allocator);
+    return ClassBucket.acquireMap(klass).type().isArray();
   }
   
   public void free() {

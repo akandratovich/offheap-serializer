@@ -102,9 +102,9 @@ public final class Serializer implements ISerializer {
   public Object deserialize(Key ref) throws InstantiationException {
     if (ref.pointer() == 0L) return null;
     
-    final int klass = ref.klass() > 0 ? ref.klass() : allocator.getInt(ref, Reflection.ARRAY_INT_INDEX_SCALE);
+    final int klass = ref.klass(allocator);
     ClassMap cm = ClassBucket.acquireMap(klass);
-    if (ref.array()) return deserialize0(ref, cm.type());
+    if (ref.array(allocator)) return deserialize0(ref, cm.type());
     
     return deserializecm(ref, cm);
   }
@@ -154,8 +154,8 @@ public final class Serializer implements ISerializer {
         ClassMap cm = null;
         for (int i = 0; i < size; i++) {
           final Key mkey = ref.member(i);
-          if (mkey != null && mkey.pointer() != 0L && mkey.klass() != 0) {
-            final int hash = mkey.klass();
+          if (mkey != null && mkey.pointer() != 0L && mkey.klass(allocator) != 0) {
+            final int hash = mkey.klass(allocator);
             cm = ClassBucket.acquireMap(hash);
             i = size;
           }
